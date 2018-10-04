@@ -36,6 +36,7 @@ namespace Images {
         void imageChanged();
     private:
         QImage m_image;
+        Q_DISABLE_COPY(Provider)
     };
 
 }
