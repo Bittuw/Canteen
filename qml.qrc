@@ -1,5 +1,11 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
+        <file alias="clients_pattern">schemas/clients_pattern.xsd</file>
+    </qresource>
+    <qresource prefix="/icons">
+        <file alias="/favicon.ico">icons/favicon.ico</file>
+        <file alias="/forbidden">icons/forbidden.png</file>
+        <file alias="/allowed">icons/allowed.png</file>
     </qresource>
 </RCC>

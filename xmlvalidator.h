@@ -63,7 +63,6 @@ namespace Xml {
     private:
         QXmlSchemaValidator validator;
         MessageHandler messageHandler;
-        QString default_path;
         QString current_schema;
     };
 

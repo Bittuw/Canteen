@@ -49,8 +49,12 @@ namespace Core {
         Net::FileDownloader m_xmlfile_downloader{"https://lgprk.ru/upload/ftp/utkonos/"};
         Net::FileDownloader m_imagefile_downloader{"https://cdn.lgprk.ru/users/card/"};
         Net::FileDownloader m_raw_card{"https://lgprk.ru:/api/v1/food/"};
-
         Utils::MidnightTimer m_midnight_timer;
+
+        QImage not_found {QStringLiteral(":/icons/not_found")};
+        QImage forbidden;
+        QImage allowed {QStringLiteral(":/icons/allowed")};
+
         void DownloadPersons(QString);
         void Init_Reader();
         void Init_Persons();

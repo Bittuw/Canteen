@@ -1,15 +1,19 @@
+#include <QtWidgets/QApplication>
 #include <QQmlApplicationEngine>
 #include <QGuiApplication>
 #include <QQuickStyle>
 #include <QQmlContext>
+#include <QIcon>
 
-#include "../Canteen/core.h"
+#include "core.h"
 
 int main(int argc, char *argv[])
 {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-
     QGuiApplication app(argc, argv);
+    QIcon icon(QStringLiteral(":/icons/favicon.ico"));
+    app.setWindowIcon(icon);
+
     QQuickStyle::setStyle("Material");
 
     Core::Core core;
@@ -18,6 +22,7 @@ int main(int argc, char *argv[])
     core.moveToThread(&core_thread);
 
     qmlRegisterType<Images::ImageItem>("com.bittumworker.org", 1, 0, "ImageItem");
+
     ///
     /// implement Core::Core here
     ///

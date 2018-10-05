@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<!--Ограничения значений-->
+	<xs:simpleType name="commands">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="insert"/>
+			<xs:enumeration value="delete"/>
+			<xs:enumeration value="refresh"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="discounds">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="0"/>
+			<xs:maxInclusive value="100"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="urls">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="https?://.+"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- ______________ -->
+	<!--атрибуты PACKAGE-->
+	<xs:attribute name="id" type="xs:positiveInteger"/>
+	<xs:attribute name="SAP_SYSTEM" fixed="UTE" type="xs:string"/>
+	<!-- ______________ -->
+	<!--атрибуты BATCH-->
+	<xs:attribute name="command" type="commands"/>
+	<xs:attribute name="entity" fixed="client" type="xs:string"/>
+	<!-- ______________ -->
+	<!--атрибуты ITEM-->
+	<xs:attribute name="tab_number" type="xs:positiveInteger"/>
+	<xs:attribute name="name" type="xs:string"/>
+	<xs:attribute name="pass_number" type="xs:positiveInteger"/>
+	<xs:attribute name="discount_percent" type="discounds"/>
+	<xs:attribute name="pass_card" type="urls"/>
+	<!-- ______________ -->
+	<!--Элемент ITEM-->
+	<xs:element name="item">
+		<xs:complexType>
+			<xs:attribute ref="tab_number" use="required"/>
+			<xs:attribute ref="name" use="optional"/>
+			<xs:attribute ref="pass_number" use="optional"/>
+			<xs:attribute ref="discount_percent" use="optional"/>
+			<xs:attribute ref="pass_card" use="optional"/>
+		</xs:complexType>
+	</xs:element>
+	<!-- ______________ -->
+	<!--Элемент BATCH-->
+	<xs:element name="batch">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="item" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:attribute ref="command" use="required"/>
+			<xs:attribute ref="entity" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<!-- ______________ -->
+	<!--Элемент BATCH-->
+	<xs:element name="package">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="batch" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:attribute ref="id" use="required"/>
+			<xs:attribute ref="SAP_SYSTEM" use="optional"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
+

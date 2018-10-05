@@ -1,5 +1,7 @@
 #include "filedownloader.h"
 
+#include <functional>
+
 #include <QtNetwork/QSslConfiguration>
 #include <QtNetwork/QNetworkReply>
 #include <QList>
@@ -27,7 +29,8 @@ void Net::FileDownloader::download(QString file) {
     QNetworkRequest request;
     request.setSslConfiguration(config);
     request.setUrl(url);
-    manager.get(request);
+    auto reply = manager.get(request);
+    Q_UNUSED(reply)
 }
 
 void Net::FileDownloader::raw_card(IronLogic::Card card) {

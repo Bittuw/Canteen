@@ -2,6 +2,7 @@
 #define FILEMANAGER_H
 
 #include <QObject>
+#include <QSet>
 #include <QDir>
 
 namespace FileManagment {
@@ -17,10 +18,11 @@ namespace FileManagment {
         QFile get_file(QString);
         QFileInfo get_file_info(QString);
     signals:
-
     public slots:
     private:
         QString base_dir = QDir::currentPath() + "/data/";
+        QDir directory = base_dir;
+        QSet<QString> existing_files;
         Q_DISABLE_COPY(FileManager)
     };
 }

@@ -10,6 +10,11 @@
 
 Core::Core::Core(QObject *parent) : QObject(parent)
 {
+    qDebug() << Q_FUNC_INFO << "prepare core" << this;
+
+    forbidden = QImage(QStringLiteral(":/icons/forbidden")).scaled(50,50);
+    allowed = QImage(QStringLiteral(":/icons/allowed")).scaled(50,50);
+
     qRegisterMetaType<IronLogic::Card>("Card");
     QObject::connect(&m_xmlfile_downloader, &Net::FileDownloader::donwloadFinishedReply,this, &Core::receivePersonData);
     QObject::connect(&m_imagefile_downloader, &Net::FileDownloader::donwloadFinishedReply,this, &Core::receiveImageData);
@@ -17,13 +22,16 @@ Core::Core::Core(QObject *parent) : QObject(parent)
 }
 
 void Core::Core::moveToThread(QThread *thread) {
-    qDebug() << Q_FUNC_INFO << "starting core..." << this;
+    qDebug() << Q_FUNC_INFO << "starting core" << this;
+
     QObject::connect(thread, &QThread::started, this, &Core::runCore);
     QObject::connect(thread, &QThread::finished, this, &Core::stop);
     QObject::connect(&m_midnight_timer, &Utils::MidnightTimer::TimeOut, this, &Core::Core::timeClean);
+    QObject::connect(&reader, &IronLogic::Z2USB::readNewKey, this, &Core::Core::receiveCard);
 
     QObject::moveToThread(thread);
     m_midnight_timer.moveToThread(thread);
+    reader.moveToThread(&m_serial_port);
 }
 
 Images::Provider* Core::Core::getProvider() {
@@ -52,10 +60,8 @@ void Core::Core::receiveCard(IronLogic::Card card) {
         check_eat();
         // Есть
     } else {
-        auto not_found_file = m_file_manager.get_file_info("not_found.png").absoluteFilePath();
-        QImage not_found_image(not_found_file);
-        not_found_image.scaled(650, 300);
-        m_image_updater.setImage(not_found_image);
+        m_image_updater.setImage(not_found.scaled(650, 300));
+        m_raw_card.raw_card(raw_person);
         // Нет
     }
 }
@@ -63,7 +69,7 @@ void Core::Core::receiveCard(IronLogic::Card card) {
 void Core::Core::receivePersonData(QString abs_file_path) {
     qDebug() << Q_FUNC_INFO << "Receive new persons list: " << QFileInfo(abs_file_path).fileName() << this;
 
-    auto file_path = m_file_manager.save_file(abs_file_path);
+    QString file_path = m_file_manager.save_file(abs_file_path);
     file_path = m_file_manager.get_file_info(file_path).absoluteFilePath();
 
     Xml::XmlValidator validator;
@@ -95,6 +101,7 @@ void Core::Core::receiveImageData(QString abs_file_path) {
 
 void Core::Core::timeClean() {
     qDebug() << Q_FUNC_INFO << "clean timeout" << this;
+
     m_midnight_timer.stop();
     m_person_eat.clear();
     auto person_file = QDate::currentDate().toString("yyyyMMdd") + ".xml";
@@ -104,6 +111,7 @@ void Core::Core::timeClean() {
 
 void Core::Core::stop() {
     qDebug() << Q_FUNC_INFO << "core stoped." << this;
+
     m_serial_port.quit();
     m_serial_port.wait();
     m_midnight_timer.stop();
@@ -115,13 +123,13 @@ void Core::Core::DownloadPersons(QString xml_file) {
 
 void Core::Core::Init_Reader() {
     qDebug() << Q_FUNC_INFO << "inititalize serial port" << this;
-    QObject::connect(&reader, &IronLogic::Z2USB::readNewKey, this, &Core::Core::receiveCard);
-    reader.moveToThread(&m_serial_port);
+
     m_serial_port.start();
 }
 
 void Core::Core::Init_Persons() {
     qDebug() << Q_FUNC_INFO << "inititalize persons data" << this;
+
     auto person_file = QDate::currentDate().toString("yyyyMMdd") + ".xml";
     if(!m_file_manager.exist_file(person_file)) {
         DownloadPersons(person_file);
@@ -138,16 +146,14 @@ void Core::Core::check_eat() {
         if( m_file_manager.exist_file(QUrl(last_person.image_url).fileName())) {
 
             auto abs_file_path = m_file_manager.get_file_info(QUrl(last_person.image_url).fileName());
-            auto forbidden_file = m_file_manager.get_file_info("forbidden.png");
 
             QImage image{abs_file_path.absoluteFilePath()};
-            QImage forbiddeng_image{forbidden_file.absoluteFilePath()};
 
             QPainter painter(&image);
 
             painter.drawImage(
-                        QPointF(image.size().width() - forbiddeng_image.size().width(), 0),
-                        forbiddeng_image
+                        QPointF(image.size().width() - forbidden.size().width(), 0),
+                        forbidden
                         );
             painter.end();
 
@@ -161,17 +167,13 @@ void Core::Core::check_eat() {
     } else {
         if( m_file_manager.exist_file(QUrl(last_person.image_url).fileName())) {
             auto abs_file_path = m_file_manager.get_file_info(QUrl(last_person.image_url).fileName());
-            auto allowed_file = m_file_manager.get_file_info("allowed.png");
 
             QImage image{abs_file_path.absoluteFilePath()};
-            QImage allowed_image{allowed_file.absoluteFilePath()};
 
             QPainter painter(&image);
             painter.drawImage(
-//                        image.size().width() - allowed_image.size().width(),
-//                        image.size().height(),
-                        QPointF(image.size().width() - allowed_image.size().width(), 0),
-                        allowed_image
+                        QPointF(image.size().width() - allowed.size().width(), 0),
+                        allowed
                         );
             painter.end();
             /// не ел

@@ -7,7 +7,9 @@
 #include <QThread>
 #include <QTimer>
 
-#define toMidnight(sec) 84600000 - sec
+#define FOUR_HOUR 14400000
+#define TO_MIDNIGHT(msec) 86400000 - msec
+#define NEXT_TIMEOUT(c_msec) TO_MIDNIGHT(c_msec) + FOUR_HOUR
 
 namespace Utils {
     class MidnightTimer : public QObject
@@ -15,7 +17,7 @@ namespace Utils {
         Q_OBJECT
     public:
         explicit MidnightTimer(QObject *parent = nullptr);
-
+        void moveToThread(QThread*);
     signals:
         void TimeOut();
     public slots:

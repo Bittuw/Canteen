@@ -7,12 +7,16 @@ Utils::MidnightTimer::MidnightTimer(QObject *parent) : QObject(parent)
     QObject::connect(&timer, &QTimer::timeout, [this](){ emit this->TimeOut(); });
 }
 
+void Utils::MidnightTimer::moveToThread(QThread* thread) {
+    timer.moveToThread(thread);
+    QObject::moveToThread(thread);
+}
+
 void Utils::MidnightTimer::start() {
-    timer.start(toMidnight(QTime::currentTime().second()));
-//    timer.start(10000);
+   emit timer.start(NEXT_TIMEOUT(QTime::currentTime().msec()));
 }
 
 void Utils::MidnightTimer::stop() {
-    timer.stop();
+    emit timer.stop();
 }
 
