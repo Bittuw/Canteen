@@ -23,13 +23,12 @@ bool Statistic::Statistic::add(const Core::Person& person) {
         return false;
 }
 
-void Statistic::Statistic::flush() {
-    auto person_file = QDate::currentDate().toString("yyyyMMdd_stat") + ".xml";
+void Statistic::Statistic::flush(QString file) {
 
-    qDebug() << Q_FUNC_INFO << "flushing statistic into" << person_file << this;
+    qDebug() << Q_FUNC_INFO << "flushing statistic into" << file << this;
 
-    QFile xml_file(default_path + person_file);
-    xml_file.open(QIODevice::WriteOnly);
+    QFile xml_file(default_path + file);
+    xml_file.open(QIODevice::WriteOnly | QIODevice::Truncate);
 
     QXmlStreamWriter stream(&xml_file);
     stream.setAutoFormatting(true);
@@ -51,13 +50,15 @@ void Statistic::Statistic::flush() {
 }
 
 
-void Statistic::Statistic::reestablish() {
-    auto person_file = QDate::currentDate().toString("yyyyMMdd_stat") + ".xml";
+void Statistic::Statistic::reestablish(QString file) {
+    auto person_file = file;
+
     if(QDir(default_path).exists(person_file)) {
 
         next_writeble.clear();
 
         QFile xml_file(default_path + person_file);
+        xml_file.open(QIODevice::ReadOnly);
 
         QXmlStreamReader stream(&xml_file);
         stream.readNext();
@@ -84,6 +85,3 @@ bool Statistic::Statistic::contains(const Core::Person& person) {
     return next_writeble.contains(person);
 }
 
-Statistic::Statistic::~Statistic() {
-    flush();
-}

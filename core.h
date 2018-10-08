@@ -36,9 +36,11 @@ namespace Core {
         void stop();
 
     private:
+        QString current_date = QDate::currentDate().toString("yyyyMMdd");
+
         QThread m_serial_port;
         QList<Person> m_person_list;
-        QList<Person> m_person_eat;
+        //QList<Person> m_person_eat;
         Statistic::Statistic statistic;
 
         Person last_person;
@@ -54,7 +56,7 @@ namespace Core {
         Utils::MidnightTimer m_midnight_timer;
 
         QImage not_found {QStringLiteral(":/icons/not_found")};
-        QImage forbidden;
+        QImage forbidden {QStringLiteral(":icons/forbidden")};
         QImage allowed {QStringLiteral(":/icons/allowed")};
 
         void DownloadPersons(QString);

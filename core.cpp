@@ -12,8 +12,8 @@ Core::Core::Core(QObject *parent) : QObject(parent)
 {
     qDebug() << Q_FUNC_INFO << "prepare core" << this;
 
-    forbidden = QImage(QStringLiteral(":/icons/forbidden")).scaled(50,50);
-    allowed = QImage(QStringLiteral(":/icons/allowed")).scaled(50,50);
+//    forbidden = QImage(QStringLiteral(":/icons/forbidden")).scaled(50,50);
+//    allowed = QImage(QStringLiteral(":/icons/allowed")).scaled(50,50);
 
     qRegisterMetaType<IronLogic::Card>("Card");
     QObject::connect(&m_xmlfile_downloader, &Net::FileDownloader::donwloadFinishedReply,this, &Core::receivePersonData);
@@ -103,16 +103,19 @@ void Core::Core::timeClean() {
     qDebug() << Q_FUNC_INFO << "clean timeout" << this;
 
     m_midnight_timer.stop();
-    m_person_eat.clear();
-    auto person_file = QDate::currentDate().toString("yyyyMMdd") + ".xml";
+    //m_person_eat.clear();
+    auto new_date = QDate::currentDate().toString("yyyyMMdd");
+    auto person_file = new_date + ".xml";
     DownloadPersons(person_file);
+    statistic.flush(current_date + ".xml");
+
     m_midnight_timer.start();
+    current_date = new_date;
 }
 
 void Core::Core::stop() {
-    qDebug() << Q_FUNC_INFO << "core stoped." << this;
-
-    statistic.flush();
+    qDebug() << Q_FUNC_INFO << "core stoped" << this;
+    statistic.flush(current_date + "_stat.xml");
     m_serial_port.quit();
     m_serial_port.wait();
     m_midnight_timer.stop();
@@ -130,8 +133,8 @@ void Core::Core::Init_Reader() {
 
 void Core::Core::Init_Persons() {
     qDebug() << Q_FUNC_INFO << "inititalize persons data" << this;
-    statistic.reestablish();
-    auto person_file = QDate::currentDate().toString("yyyyMMdd") + ".xml";
+    auto person_file = current_date + ".xml";
+    statistic.reestablish(current_date + "_stat.xml");
     if(!m_file_manager.exist_file(person_file)) {
         DownloadPersons(person_file);
     } else {
@@ -140,7 +143,7 @@ void Core::Core::Init_Persons() {
 }
 
 void Core::Core::check_eat() {
-    if(m_person_eat.contains(last_person)) {
+    if(statistic.contains(last_person)) {
 
         qDebug() << Q_FUNC_INFO << "person ate:" << last_person.full_name << this;
 
@@ -183,7 +186,7 @@ void Core::Core::check_eat() {
             qDebug() << Q_FUNC_INFO << QObject::tr("Set positive image: %1").arg(last_person.full_name) << this;
 
             m_image_updater.setImage(image);
-            m_person_eat.append(last_person);
+            statistic.add(last_person);
             m_raw_card.raw_card(raw_person);
         } else {
             m_imagefile_downloader.download(QUrl(last_person.image_url).fileName());
