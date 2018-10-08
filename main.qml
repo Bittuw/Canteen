@@ -8,6 +8,7 @@ import QtQuick.Controls.Styles 1.4
 import com.bittumworker.org 1.0
 
 ApplicationWindow {
+
     id: applicationWindow
     visible: true
     width: 650

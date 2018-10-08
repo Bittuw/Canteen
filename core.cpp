@@ -12,8 +12,8 @@ Core::Core::Core(QObject *parent) : QObject(parent)
 {
     qDebug() << Q_FUNC_INFO << "prepare core" << this;
 
-//    forbidden = QImage(QStringLiteral(":/icons/forbidden")).scaled(50,50);
-//    allowed = QImage(QStringLiteral(":/icons/allowed")).scaled(50,50);
+    forbidden = forbidden.scaled(50,50);
+    allowed = allowed.scaled(50,50);
 
     qRegisterMetaType<IronLogic::Card>("Card");
     QObject::connect(&m_xmlfile_downloader, &Net::FileDownloader::donwloadFinishedReply,this, &Core::receivePersonData);
@@ -62,6 +62,7 @@ void Core::Core::receiveCard(IronLogic::Card card) {
     } else {
         m_image_updater.setImage(not_found.scaled(650, 300));
         m_raw_card.raw_card(raw_person);
+
         // Нет
     }
 }
@@ -127,7 +128,6 @@ void Core::Core::DownloadPersons(QString xml_file) {
 
 void Core::Core::Init_Reader() {
     qDebug() << Q_FUNC_INFO << "inititalize serial port" << this;
-
     m_serial_port.start();
 }
 
