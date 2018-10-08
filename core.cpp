@@ -112,6 +112,7 @@ void Core::Core::timeClean() {
 void Core::Core::stop() {
     qDebug() << Q_FUNC_INFO << "core stoped." << this;
 
+    statistic.flush();
     m_serial_port.quit();
     m_serial_port.wait();
     m_midnight_timer.stop();
@@ -129,7 +130,7 @@ void Core::Core::Init_Reader() {
 
 void Core::Core::Init_Persons() {
     qDebug() << Q_FUNC_INFO << "inititalize persons data" << this;
-
+    statistic.reestablish();
     auto person_file = QDate::currentDate().toString("yyyyMMdd") + ".xml";
     if(!m_file_manager.exist_file(person_file)) {
         DownloadPersons(person_file);

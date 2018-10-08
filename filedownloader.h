@@ -15,6 +15,7 @@ namespace Net {
         void download(QString);
         void raw_card(IronLogic::Card);
         void unconnect_for_raw();
+        ~FileDownloader();
     signals:
         void donwloadFinishedReply(QString);
     public slots:

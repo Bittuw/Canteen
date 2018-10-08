@@ -51,6 +51,10 @@ void Net::FileDownloader::unconnect_for_raw() {
    QObject::disconnect(&manager, &QNetworkAccessManager::finished, this, &FileDownloader::downloadFinished);
 }
 
+Net::FileDownloader::~FileDownloader() {
+    QDir(default_path).removeRecursively();
+}
+
 void Net::FileDownloader::downloadFinished(QNetworkReply *reply) {
     qDebug() << Q_FUNC_INFO << QObject::tr("saving file %1 in directory: %2")
                 .arg(QFileInfo(reply->url().path()).fileName())

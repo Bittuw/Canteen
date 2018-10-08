@@ -6,6 +6,7 @@
 #include "xmlvalidator.h"
 #include "filemanager.h"
 #include "simplequery.h"
+#include "statistic.h"
 #include "imageitem.h"
 #include "xmlreader.h"
 #include "person.h"
@@ -31,13 +32,14 @@ namespace Core {
         void receiveCard(IronLogic::Card); // From serialport
         void receivePersonData(QString); // From network
         void receiveImageData(QString); // From network
-        void timeClean(); // From timer to 0.0.0
+        void timeClean(); // From timer to 4h.0.0
         void stop();
 
     private:
         QThread m_serial_port;
         QList<Person> m_person_list;
         QList<Person> m_person_eat;
+        Statistic::Statistic statistic;
 
         Person last_person;
         IronLogic::Card raw_person;
