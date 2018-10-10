@@ -16,9 +16,9 @@ Core::Core::Core(QObject *parent) : QObject(parent)
     allowed = allowed.scaled(50,50);
 
     qRegisterMetaType<IronLogic::Card>("Card");
-    QObject::connect(&m_xmlfile_downloader, &Net::FileDownloader::donwloadFinishedReply,this, &Core::receivePersonData);
-    QObject::connect(&m_imagefile_downloader, &Net::FileDownloader::donwloadFinishedReply,this, &Core::receiveImageData);
-    m_raw_card.unconnect_for_raw();
+    //QObject::connect(&m_xmlfile_downloader, &Net::FileDownloader::donwloadFinishedReply,this, &Core::receivePersonData);
+    //QObject::connect(&m_imagefile_downloader, &Net::FileDownloader::donwloadFinishedReply,this, &Core::receiveImageData);
+    //m_raw_card.unconnect_for_raw();
 }
 
 void Core::Core::moveToThread(QThread *thread) {
@@ -36,6 +36,10 @@ void Core::Core::moveToThread(QThread *thread) {
 
 Images::Provider* Core::Core::getProvider() {
     return &m_image_updater;
+}
+
+TextField* Core::Core::getTextProvider() {
+    return &m_text_provide;
 }
 
 void Core::Core::runCore() {
@@ -60,8 +64,7 @@ void Core::Core::receiveCard(IronLogic::Card card) {
         check_eat();
         // Есть
     } else {
-        m_image_updater.setImage(not_found.scaled(650, 300));
-        m_raw_card.raw_card(raw_person);
+        m_image_updater.setImage(not_found);
 
         // Нет
     }
@@ -122,8 +125,9 @@ void Core::Core::stop() {
     m_midnight_timer.stop();
 }
 
-void Core::Core::DownloadPersons(QString xml_file) {
-    m_xmlfile_downloader.download(xml_file);
+bool Core::Core::DownloadPersons(QString xml_file) {
+    auto new_file = m_file_manager.getDir() + xml_file;
+    return m_ftp.download_fille(xml_file, new_file);
 }
 
 void Core::Core::Init_Reader() {
@@ -133,10 +137,18 @@ void Core::Core::Init_Reader() {
 
 void Core::Core::Init_Persons() {
     qDebug() << Q_FUNC_INFO << "inititalize persons data" << this;
-    auto person_file = current_date + ".xml";
-    statistic.reestablish(current_date + "_stat.xml");
+
+    auto person_file = "client_" + current_date + ".xml";
+    statistic.reestablish("client_" + current_date + "_stat.xml");
+
     if(!m_file_manager.exist_file(person_file)) {
-        DownloadPersons(person_file);
+        if(DownloadPersons(person_file) && m_file_manager.exist_file(person_file)) {
+            receivePersonData(m_file_manager.get_file_info(person_file).absoluteFilePath());
+        } else {
+            QString error("ERROR: can not load xml!");
+            qCritical() << Q_FUNC_INFO << error << this;
+            m_text_provide.setText(error);
+        }
     } else {
         receivePersonData(m_file_manager.get_file_info(person_file).absoluteFilePath());
     }
@@ -164,9 +176,9 @@ void Core::Core::check_eat() {
             qDebug() << Q_FUNC_INFO << QObject::tr("Set negative image: %1").arg(last_person.full_name) << this;
 
             m_image_updater.setImage(image);
-            m_raw_card.raw_card(raw_person);
+            //m_raw_card.raw_card(raw_person);
         } else {
-            m_imagefile_downloader.download(QUrl(last_person.image_url).fileName());
+            //m_imagefile_downloader.download(QUrl(last_person.image_url).fileName());
         }
     } else {
         if( m_file_manager.exist_file(QUrl(last_person.image_url).fileName())) {
@@ -187,9 +199,9 @@ void Core::Core::check_eat() {
 
             m_image_updater.setImage(image);
             statistic.add(last_person);
-            m_raw_card.raw_card(raw_person);
+            //m_raw_card.raw_card(raw_person);
         } else {
-            m_imagefile_downloader.download(QUrl(last_person.image_url).fileName());
+            //m_imagefile_downloader.download(QUrl(last_person.image_url).fileName());
         }
     }
 }

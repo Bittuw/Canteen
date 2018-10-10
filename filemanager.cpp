@@ -63,3 +63,7 @@ QFileInfo FileManagment::FileManager::get_file_info(QString file_name) {
     else
         return {};
 }
+
+QString FileManagment::FileManager::getDir() {
+    return directory.absolutePath();
+}

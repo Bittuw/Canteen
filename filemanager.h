@@ -17,6 +17,7 @@ namespace FileManagment {
         bool exist_file(QString);
         QFile get_file(QString);
         QFileInfo get_file_info(QString);
+        QString getDir();
     signals:
     public slots:
     private:

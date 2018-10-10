@@ -46,15 +46,46 @@ ApplicationWindow {
         }
     }
 
-    ImageItem {
-        id: liveImageItem
-        anchors.fill: parent
-        objectName: "liveImageItem"
-    }
 
-    Connections {
-        target: DIProvider
-        onImageChanged: liveImageItem.image = DIProvider.image
+
+    ColumnLayout {
+        id: columnLayout
+        anchors.fill: parent
+
+        Item {
+            id: item1
+            width: 200
+            height: 200
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+
+
+            Label {
+                id: outputName
+
+                text: TextProvider.text
+                font.family: "Verdana"
+                verticalAlignment: Text.AlignVCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+                wrapMode: Text.WordWrap
+
+                font.pixelSize: 22
+                objectName: outputName
+            }
+
+            ImageItem {
+                id: liveImageItem
+                anchors.horizontalCenter: parent.horizontalCenter
+                objectName: "liveImageItem"
+                scale: 0.5
+            }
+
+//            Image {
+//                id: nextImage
+//                anchors.horizontalCenter: parent.horizontalCenter
+//                scale: 0.5
+//                source: "/icons/allowed"
+//            }
+        }
     }
 
     MouseArea {
@@ -75,4 +106,10 @@ ApplicationWindow {
             applicationWindow.setY(applicationWindow.y + dy)
         }
     }
+
+    Connections {
+        target: DIProvider
+        onImageChanged: liveImageItem.image = DIProvider.image
+    }
 }
+
