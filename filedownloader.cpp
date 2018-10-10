@@ -11,7 +11,7 @@
 Net::FileDownloader::FileDownloader(QString base_url, QObject *parent) : QObject(parent),
     default_path(QDir::currentPath() + "/temp/"), m_base_url(base_url)
 {
-    if(QDir(QDir::currentPath()).exists())
+    if(!QDir(QDir::currentPath()).exists("temp"))
         QDir().mkdir("temp");
 
     qDebug() << Q_FUNC_INFO << "init FileDonwloader" << this;
