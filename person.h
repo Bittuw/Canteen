@@ -1,10 +1,30 @@
 #ifndef PERSON_H
 #define PERSON_H
 
+#include <QObject>
 #include <QString>
 #include <QUrl>
 
 namespace Core {
+
+    struct Enums : public QObject {
+        Q_OBJECT
+    public:
+        enum class FirstRes {
+            FOUND = 1,
+            NOT_FOUND = 2
+        };
+
+        enum class SecondRes {
+            ALLOWED = 1,
+            FORBIDDEN = 2,
+            NOT_FOUND = 3
+        };
+
+        Q_ENUM(FirstRes)
+        Q_ENUM(SecondRes)
+        Q_DISABLE_COPY(Enums)
+    };
 
     struct Person {
         int tab_number; // Внутренний номер

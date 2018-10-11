@@ -12,7 +12,7 @@ public:
     QString getText() const {
         return text_;
     }
-    void setText(QString& text) {
+    void setText(QString text) {
         text_ = text;
         emit changeText();
     }

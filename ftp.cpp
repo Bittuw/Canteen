@@ -26,7 +26,7 @@ Ftp::Ftp::Ftp(QObject *parent) : QObject(parent)
 /// ftp_path путь до папки, local_path - абс путь до файла
 ///
 ///
-bool Ftp::Ftp::download_fille(QString& ftp_path, QString& local_path) {
+bool Ftp::Ftp::download_file(QString ftp_path, QString local_path) {
     Poco::Net::FTPClientSession ftp;
 
     try {
@@ -54,7 +54,7 @@ bool Ftp::Ftp::download_fille(QString& ftp_path, QString& local_path) {
             }
 
             ftp.endDownload();
-            ftp.cdup();
+            //ftp.cdup();
 
             QByteArray in_qdata = QByteArray::fromStdString(in_data.str());
             in_file.write(in_qdata);
@@ -70,7 +70,7 @@ bool Ftp::Ftp::download_fille(QString& ftp_path, QString& local_path) {
     }
 }
 
-bool Ftp::Ftp::upload_file(QString& local_path, QString& ftp_path, QString rename_file) {
+bool Ftp::Ftp::upload_file(QString local_path, QString ftp_path, QString rename_file) {
     Poco::Net::FTPClientSession ftp;
 
     try {
@@ -98,7 +98,7 @@ bool Ftp::Ftp::upload_file(QString& local_path, QString& ftp_path, QString renam
             out_stream << out_file.readAll().toStdString();
 
             ftp.endUpload();
-            ftp.cdup();
+            //ftp.cdup();
 
             out_file.close();
             return true;
@@ -110,4 +110,48 @@ bool Ftp::Ftp::upload_file(QString& local_path, QString& ftp_path, QString renam
         qWarning() << Q_FUNC_INFO << "cannot upload file: " << local_path << this;
         return false;
     }
+}
+
+void Ftp::Ftp::move_file(QString ftp_path, QString ftp_file, QString new_file_path) {
+    Poco::Net::FTPClientSession ftp;
+
+    try {
+        ftp.open(
+                    host.toStdString(),
+                    static_cast<Poco::UInt16>(port),
+                    user.toStdString(),
+                    passwd.toStdString()
+        );
+    } catch(const std::exception& error) {
+        qCritical() << Q_FUNC_INFO << error.what() << this;
+    }
+
+    if(ftp.isOpen()) {
+        ftp.setWorkingDirectory(ftp_path.toStdString());
+        ftp.rename(ftp_file.toStdString(), new_file_path.toStdString());
+    }
+
+    ftp.close();
+}
+
+void Ftp::Ftp::delete_file(QString ftp_path, QString ftp_file) {
+    Poco::Net::FTPClientSession ftp;
+
+    try {
+        ftp.open(
+                    host.toStdString(),
+                    static_cast<Poco::UInt16>(port),
+                    user.toStdString(),
+                    passwd.toStdString()
+        );
+    } catch(const std::exception& error) {
+        qCritical() << Q_FUNC_INFO << error.what() << this;
+    }
+
+    if(ftp.isOpen()) {
+        ftp.setWorkingDirectory(ftp_path.toStdString());
+        ftp.remove(ftp_file.toStdString());
+    }
+
+    ftp.close();
 }

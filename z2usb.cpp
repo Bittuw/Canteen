@@ -33,8 +33,10 @@ bool IronLogic::Z2USB::getStatus() {
 
 void IronLogic::Z2USB::moveToThread(QThread *thread) {
     qDebug() << Q_FUNC_INFO << "moving" << this << "to" << thread;
-    QObject::connect(thread, &QThread::started, this, &Z2USB::doWork);
-    QObject::connect(thread, &QThread::finished, this, &Z2USB::close);
+
+    QObject::connect(thread, &QThread::started, this, &Z2USB::start);
+    QObject::connect(thread, &QThread::finished, this, &Z2USB::stop);
+
     QObject::moveToThread(thread);
 }
 
@@ -49,7 +51,7 @@ void IronLogic::Z2USB::handleReadyRead() {
     qDebug() << Q_FUNC_INFO <<  "signal buffer output:" << m_buffer << this;
 }
 
-void IronLogic::Z2USB::doWork() {
+void IronLogic::Z2USB::start() {
     qDebug() << Q_FUNC_INFO << "prepare to start." << this;
     if(open()) {
         qDebug() << Q_FUNC_INFO << "successfull open port." << this;
@@ -108,7 +110,7 @@ bool IronLogic::Z2USB::open() {
     return m_serialport.open(QIODevice::ReadOnly);
 }
 
-void IronLogic::Z2USB::close() {
+void IronLogic::Z2USB::stop() {
     qDebug() << Q_FUNC_INFO << "closing z2usb port." << this;
     m_serialport.close();
 }

@@ -7,5 +7,6 @@
         <file alias="/favicon.ico">icons/favicon.ico</file>
         <file alias="/forbidden">icons/forbidden.png</file>
         <file alias="/allowed">icons/allowed.png</file>
+        <file alias="/not_found">icons/not_found.png</file>
     </qresource>
 </RCC>

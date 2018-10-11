@@ -13,10 +13,10 @@ void Utils::MidnightTimer::moveToThread(QThread* thread) {
 }
 
 void Utils::MidnightTimer::start() {
-   emit timer.start(NEXT_TIMEOUT(QTime::currentTime().msec()));
+   timer.start(NEXT_TIMEOUT(QTime::currentTime().msec()));
 }
 
 void Utils::MidnightTimer::stop() {
-    emit timer.stop();
+    timer.stop();
 }
 

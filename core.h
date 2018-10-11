@@ -1,18 +1,13 @@
 #ifndef CORE_H
 #define CORE_H
 
-#include "filedownloader.h"
-#include "midnighttimer.h"
-#include "xmlvalidator.h"
-#include "filemanager.h"
-#include "simplequery.h"
-#include "statistic.h"
 #include "imageitem.h"
 #include "textfield.h"
-#include "xmlreader.h"
 #include "person.h"
-#include "z2usb.h"
-#include "ftp.h"
+
+#include "core_statistic.h"
+#include "core_update.h"
+#include "core_device.h"
 
 #include <QObject>
 #include <QHash>
@@ -31,46 +26,34 @@ namespace Core {
     signals:
 
     public slots:
-        void runCore();
-        void receiveCard(IronLogic::Card); // From serialport
-        void receivePersonData(QString); // From network
-        void receiveImageData(QString); // From network
-        void timeClean(); // From timer to 4h.0.0
+        void start();
         void stop();
-
+        void showPersonInfo(Enums::SecondRes,Person);
 
     private:
-        QString current_date = QDate::currentDate().toString("ddMMyyyy");
-
-        QThread m_serial_port;
-        QList<Person> m_person_list;
-        //QList<Person> m_person_eat;
-        Statistic::Statistic statistic;
-
-        Person last_person;
-        IronLogic::Card raw_person;
-
-        IronLogic::Z2USB reader;
         Images::Provider m_image_updater;
-        FileManagment::FileManager m_file_manager;
-        //Net::FileDownloader m_xmlfile_downloader{"https://lgprk.ru/upload/ftp/utkonos/"};
-        //Net::FileDownloader m_imagefile_downloader{"https://cdn.lgprk.ru/users/card/"};
-        //Net::FileDownloader m_raw_card{"https://lgprk.ru:/api/v1/food/"};
-        Ftp::Ftp m_ftp;
-        Utils::MidnightTimer m_midnight_timer;
+        TextField m_text_provider;
 
-        QImage not_found {QStringLiteral(":/icons/not_found")};
-        QImage forbidden {QStringLiteral(":icons/forbidden")};
-        QImage allowed {QStringLiteral(":/icons/allowed")};
+        QThread m_device_statistic_thread;
+        QThread m_update_thread;
 
-        TextField m_text_provide;
+        Core_Statistic m_statistic;
+        Core_Update m_update;
+        Core_Device m_device;
 
-        bool DownloadPersons(QString);
-        void Init_Reader();
-        void Init_Persons();
 
-        void check_eat();
-        void save_current_list();
+        QImage m_not_found_img {QStringLiteral(":/icons/not_found")};
+        QImage m_forbidden_img {QStringLiteral(":icons/forbidden")};
+        QImage m_allowed_img {QStringLiteral(":/icons/allowed")};
+
+
+//        bool DownloadPersons(QString);
+//        void Init_Reader();
+//        void Init_Persons();
+
+//        void check_eat();
+//        void save_current_list();
+//        void update();
     };
 }
 #endif // CORE_H

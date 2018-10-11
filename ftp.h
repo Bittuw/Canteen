@@ -12,8 +12,10 @@ namespace Ftp {
     Q_OBJECT
     public:
         Ftp(QObject *parent = nullptr);
-        bool download_fille(QString&, QString&);
-        bool upload_file(QString&, QString&, QString = "");
+        bool download_file(QString, QString);
+        bool upload_file(QString, QString, QString = "");
+        void move_file(QString, QString, QString);
+        void delete_file(QString, QString);
     private:
         QString host;
         QString user;

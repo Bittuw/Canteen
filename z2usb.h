@@ -32,8 +32,8 @@ namespace IronLogic {
 
     public slots:
         bool open();
-        void close();
-        void doWork();
+        void stop();
+        void start();
 
     private slots:
         void handleReadyRead();

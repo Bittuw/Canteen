@@ -30,6 +30,8 @@ bool Xml::XmlValidator::validate(QString instance_file_apath) {
         return false;
     }
 
+    instance.close();
+
     return true;
 }
 
