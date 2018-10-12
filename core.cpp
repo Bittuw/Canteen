@@ -12,17 +12,22 @@ Core::Core::Core(QObject *parent) : QObject(parent)
 {
     qDebug() << Q_FUNC_INFO << "prepare core" << this;
 
-    m_forbidden_img = m_forbidden_img.scaled(50,50);
-    m_allowed_img = m_allowed_img.scaled(50,50);
-    m_not_found_img = m_not_found_img.scaled(50,50);
+//    m_forbidden_img = m_forbidden_img.scaled(50,50);
+//    m_allowed_img = m_allowed_img.scaled(50,50);
+//    m_not_found_img = m_not_found_img.scaled(50,50);
 
-    qRegisterMetaType<IronLogic::Card>("Card");\
+    qRegisterMetaType<IronLogic::Card>("Card");
+    qRegisterMetaType<QSet<Person>>();
+    qRegisterMetaType<Enums::FirstRes>();
+    qRegisterMetaType<Enums::SecondRes>();
+//    qRegisterMetaType<Person>("Person");
 
     QObject::connect(&m_device, &Core_Device::currentPerson, &m_statistic, &Core_Statistic::receiveCurrentPerson); // Передача полученного пользователя
     QObject::connect(&m_update, &Core_Update::newPersonList, &m_device, &Core_Device::setPersonList); // Установка нового списка пользователей
     QObject::connect(&m_statistic, &Core_Statistic::showPersonInfo, this, &Core::showPersonInfo); // Показать информацию о пользователе (если есть)
     QObject::connect(&m_update, &Core_Update::update, &m_statistic, &Core_Statistic::flush_report); // Сбросить статистику
     QObject::connect(&m_statistic, &Core_Statistic::statisticsCreated, &m_update, &Core_Update::statisticsCreated); // Статистика создана
+    QObject::connect(this, &Core::force_ftp_update, &m_update, &Core_Update::forceUpdate);
 }
 
 void Core::Core::moveToThread(QThread *thread) {
@@ -52,6 +57,9 @@ void Core::Core::start() {
     m_device_statistic_thread.start();
     m_update_thread.start();
 
+    m_text_provider.setText("text");
+    m_image_updater.setImage(m_not_found_img);
+    emit force_ftp_update();
 //    Init_Persons();
 //    Init_Reader();
 }

@@ -5,7 +5,6 @@
 #include <QString>
 #include <QSet>
 
-#include "virtual_core.h"
 #include "statistic.h"
 #include "person.h"
 

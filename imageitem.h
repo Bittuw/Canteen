@@ -27,6 +27,7 @@ namespace Images {
         Provider(QObject *parent = nullptr) : QObject(parent) {}
         QImage image() const {return m_image;}
         void setImage(const  QImage &image) {
+            qDebug() << Q_FUNC_INFO << "set new image" << this;
             if(m_image == image)
                 return;
             m_image = image;

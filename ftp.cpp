@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 
+#include <QTextStream>
 #include <QSettings>
 #include <QDebug>
 #include <QFile>
@@ -43,21 +44,22 @@ bool Ftp::Ftp::download_file(QString ftp_path, QString local_path) {
 
     QFile in_file(local_path);
 
-    if(ftp.isOpen() && in_file.open(QIODevice::WriteOnly)) {
+    if(ftp.isOpen() && in_file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         try {
             ftp.setWorkingDirectory(ftp_path.toStdString());
-            auto& in_stream = ftp.beginDownload(in_file.fileName().toStdString());
 
-            std::stringstream in_data;
-            while(in_stream) {
-                in_data << in_stream.get();
+            auto& in_stream = ftp.beginDownload(QFileInfo(in_file).fileName().toStdString());
+            QByteArray in_data;
+
+            while(in_stream.peek() > 0) {
+                in_data .append(static_cast<char>(in_stream.get()));
             }
 
             ftp.endDownload();
             //ftp.cdup();
-
-            QByteArray in_qdata = QByteArray::fromStdString(in_data.str());
-            in_file.write(in_qdata);
+            in_file.write(in_data);
+            //QByteArray in_qdata = QByteArray::fromStdString(in_data.str());
+            //in_file.write(in_qdata);
             in_file.close();
             return true;
         } catch(const std::exception& error) {
@@ -68,6 +70,8 @@ bool Ftp::Ftp::download_file(QString ftp_path, QString local_path) {
         qWarning() << Q_FUNC_INFO << "cannot download file: " << ftp_path << this;
         return false;
     }
+
+    ftp.close();
 }
 
 bool Ftp::Ftp::upload_file(QString local_path, QString ftp_path, QString rename_file) {
@@ -110,6 +114,8 @@ bool Ftp::Ftp::upload_file(QString local_path, QString ftp_path, QString rename_
         qWarning() << Q_FUNC_INFO << "cannot upload file: " << local_path << this;
         return false;
     }
+
+    ftp.close();
 }
 
 void Ftp::Ftp::move_file(QString ftp_path, QString ftp_file, QString new_file_path) {

@@ -1,6 +1,7 @@
 #include "core_statistic.h"
 
 #include <QDateTime>
+#include <QMetaEnum>
 #include <QThread>
 #include <QDebug>
 
@@ -33,7 +34,8 @@ void Core::Core_Statistic::stop() {
 }
 
 void Core::Core_Statistic::receiveCurrentPerson(Core::Enums::FirstRes status, Core::Person person) {
-    qDebug() << Q_FUNC_INFO << QObject::tr("receive person '%1' with 'status'") << this;
+    QMetaEnum metaEnum = QMetaEnum::fromType<Enums::FirstRes>();
+    qDebug() << Q_FUNC_INFO << QObject::tr("receive person '%1' with status: '%2'").arg(person.full_name).arg(metaEnum.valueToKey(static_cast<int>(status))) << this;
 
     switch(status) {
     case Core::Enums::FirstRes::FOUND:

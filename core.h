@@ -24,6 +24,7 @@ namespace Core {
         TextField* getTextProvider();
 
     signals:
+        void force_ftp_update();
 
     public slots:
         void start();
@@ -43,7 +44,7 @@ namespace Core {
 
 
         QImage m_not_found_img {QStringLiteral(":/icons/not_found")};
-        QImage m_forbidden_img {QStringLiteral(":icons/forbidden")};
+        QImage m_forbidden_img {QStringLiteral(":/icons/forbidden")};
         QImage m_allowed_img {QStringLiteral(":/icons/allowed")};
 
 

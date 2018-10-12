@@ -5,7 +5,6 @@
 #include <QThread>
 #include <QSet>
 
-#include "virtual_core.h"
 #include "person.h"
 #include "z2usb.h"
 

@@ -24,7 +24,7 @@ bool Statistics::SalesReport::add(const Core::Person& person) {
 }
 
 QString Statistics::SalesReport::flush(QString date, QString start_time, QString end_time) {
-    QFile xml_file(default_path + QStringLiteral("client_") + date);
+    QFile xml_file(default_path + QStringLiteral("report_") + date);
 
     qDebug() << Q_FUNC_INFO << "flushing statistic into" << xml_file.fileName() << this;
     xml_file.open(QIODevice::WriteOnly | QIODevice::Truncate);

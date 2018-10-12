@@ -28,12 +28,13 @@ namespace Core {
         void stop();
 
         void timeOut();
+        void forceUpdate();
         void statisticsCreated(QString, QString = "");
 
     private:
         Utils::MidnightTimer m_midnight_timer;
 
-        QString utkonos = QStringLiteral("utkonos/");
+        QString utkonos = QStringLiteral("utkonos");
         QString utkonos_archive = QStringLiteral("utkonos/archive/");
         QString utkonos_archive_success = QStringLiteral("utkonos/archive/success/");
         QString utkonos_archive_error = QStringLiteral("utkonos/archive/error/");
@@ -50,6 +51,8 @@ namespace Core {
 
         QSet<QPair<QString, QString>> m_not_loaded_to_ftp; // not uploaded path_file + to_ftp_path
         QSet<QPair<QString, QString>> m_not_downloaded_from_ftp; // path + file_name
+
+        void updating();
 
         Q_DISABLE_COPY(Core_Update)
     };

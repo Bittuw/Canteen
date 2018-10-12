@@ -18,18 +18,20 @@ bool Xml::XmlValidator::validate(QString instance_file_apath) {
         return false;
     }
 
-
     const auto instanceData = instance.readAll();
 
+    try {
     if(!validator.validate(instanceData)) {
-        qWarning() << QObject::tr("Warning: %1, line: %2, column: %2")
+        qWarning() << QObject::tr("Warning: %1, line: %2, column: %3")
             .arg(messageHandler.statusMessage())
             .arg(messageHandler.line())
             .arg(messageHandler.column()
                  );
         return false;
     }
-
+    } catch (std::exception error){
+        qDebug() << error.what();
+    }
     instance.close();
 
     return true;
