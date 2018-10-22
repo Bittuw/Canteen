@@ -10,6 +10,11 @@
 #include "person.h"
 #include "ftp.h"
 
+#define TO_SEC(c_min) c_min * 60
+
+// До следующего часа
+#define TO_NEXT_HOUR(c_sec, c_min) 3599 - (c_sec + TO_SEC(c_min))
+
 namespace Core {
 
     class Core_Update : public QObject
@@ -20,19 +25,26 @@ namespace Core {
         void moveToThread(QThread*);
 
     signals:
-        void update();
-        void newPersonList(QSet<Core::Person>);
+        void ClearDay();
+        void DownloadDate(QString);
+        void UploadDateTime(QString);
+
+        void makeEndDayStatistics(); // End Day stats
+        void makeTransitionStatistics(); // Trasitions stats
+        void newPersonList(QSet<Core::Person>); // Person list
 
     public slots:
         void start();
         void stop();
 
         void timeOut();
+        void hourTimeOut();
         void forceUpdate();
         void statisticsCreated(QString, QString = "");
 
     private:
         Utils::MidnightTimer m_midnight_timer;
+        Utils::MidnightTimer m_hour_timer;
 
         QString utkonos = QStringLiteral("utkonos");
         QString utkonos_archive = QStringLiteral("utkonos/archive/");
@@ -53,6 +65,7 @@ namespace Core {
         QSet<QPair<QString, QString>> m_not_downloaded_from_ftp; // path + file_name
 
         void updating();
+        bool check_ethernet();
 
         Q_DISABLE_COPY(Core_Update)
     };

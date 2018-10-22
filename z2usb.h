@@ -17,11 +17,15 @@ namespace IronLogic {
         QString data;
     };
 
+
+
+
     class Z2USB : public QObject
     {
         Q_OBJECT
 
     public:
+
         explicit Z2USB(QObject *parent = nullptr);
         bool getStatus();
         void moveToThread(QThread *thread);
@@ -49,4 +53,7 @@ namespace IronLogic {
     };
 
 }
+
+Q_DECLARE_METATYPE(IronLogic::Card);
+
 #endif // COMPORT_H

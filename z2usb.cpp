@@ -90,13 +90,12 @@ void IronLogic::Z2USB::checkKey() {
         c_serial = rx_digit.indexIn(message, c_data+4);
         c_number = rx_digit.indexIn(message, c_serial+4);
 
-        m_lastkey = {
-            QString::fromLatin1(m_buffer.mid(c_number, 5)),
-            QString::fromLatin1(m_buffer.mid(c_serial, 3)),
-            QString::fromLatin1(m_buffer.mid(c_data, 4))
-        };
+        m_lastkey.number = QString::fromLatin1(m_buffer.mid(c_number, 5));
+        m_lastkey.serial = QString::fromLatin1(m_buffer.mid(c_serial, 3));
+        m_lastkey.data = QString::fromLatin1(m_buffer.mid(c_data, 4));
 
-        qDebug() << Q_FUNC_INFO << QObject::tr("Number: %1, Serial %2").arg(m_lastkey.number).arg(m_lastkey.serial) << this;
+        qInfo() << Q_FUNC_INFO << QObject::tr("Number: %1, Serial %2, Data: %3").arg(m_lastkey.number).arg(m_lastkey.serial).arg(m_lastkey.data) << this;
+
         m_buffer.clear();
         emit readNewKey(m_lastkey);
     }

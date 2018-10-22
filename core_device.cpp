@@ -24,27 +24,31 @@ void Core::Core_Device::start() {
 }
 
 void Core::Core_Device::setPersonList(QSet<Core::Person> allowed_list) {
-    qDebug() << Q_FUNC_INFO << "set new Allowed List" << this;
+    qInfo() << Q_FUNC_INFO << "Set new allowed list with size: "<< allowed_list.size() << this;
     m_allowed_list = allowed_list;
 }
 
 void Core::Core_Device::receiveCard(IronLogic::Card card) {
-    qDebug() << Q_FUNC_INFO <<
-                QObject::tr("receive Card, serial: %1, number: %2")
-                .arg(card.serial).arg(card.number) << this;
     m_raw_person = card;
     auto pass_number =
             QString("%1").arg(m_raw_person.serial.toInt(), 3, 10, QChar('0')) +
             QString("%1").arg(m_raw_person.number.toInt(), 5, 10, QChar('0'));
+
+    qInfo() << Q_FUNC_INFO <<
+                QObject::tr("Receive Card, serial: '%1', number: '%2', result_check: '%3'")
+                .arg(card.serial).arg(card.number).arg(pass_number) << this;
+
     auto person = std::find_if(m_allowed_list.cbegin(), m_allowed_list.cend(),
                  [&pass_number](const Core::Person& person) -> bool {
                      return person.pass_number == pass_number;
                  });
 
     if(person != m_allowed_list.cend()) {
+        qInfo() << Q_FUNC_INFO << QObject::tr("Person found. Name: %1, tab_number: %2").arg(person->full_name).arg(person->tab_number) << this;
         m_last_person = *person;
-        emit currentPerson(Enums::FirstRes::FOUND, *person);
+        emit currentPerson(Enums::FirstRes::FOUND, m_last_person);
     } else {
+        qInfo() << Q_FUNC_INFO << QObject::tr("Person not found. pass_number: %2").arg(pass_number) << this;
         emit currentPerson(Enums::FirstRes::NOT_FOUND, {});
     }
 }

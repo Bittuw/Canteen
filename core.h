@@ -22,17 +22,23 @@ namespace Core {
         void moveToThread(QThread*);
         Images::Provider* getProvider();
         TextField* getTextProvider();
+        TextField* getTextProviderStatus();
+        TextField* getTextProviderDateTime();
 
     signals:
         void force_ftp_update();
+        //void test_receiveCard(IronLogic::Card);
 
     public slots:
         void start();
         void stop();
+        //void setNewList(QSet<Person>);
         void showPersonInfo(Enums::SecondRes,Person);
 
     private:
         Images::Provider m_image_updater;
+        TextField m_text_provider_datetime;
+        TextField m_text_provider_status;
         TextField m_text_provider;
 
         QThread m_device_statistic_thread;

@@ -21,7 +21,7 @@ namespace Utils {
     signals:
         void TimeOut();
     public slots:
-        void start();
+        void start(int sec = -1);
         void stop();
     private:
         QTimer timer;

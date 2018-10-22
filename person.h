@@ -50,4 +50,5 @@ namespace Core {
 Q_DECLARE_METATYPE(Core::Person)
 Q_DECLARE_METATYPE(Core::Enums::FirstRes)
 Q_DECLARE_METATYPE(Core::Enums::SecondRes)
+
 #endif // PERSON_H

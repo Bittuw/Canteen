@@ -5,6 +5,8 @@
 
 #include "Poco/Net/FTPClientSession.h"
 
+class QFile;
+
 namespace Ftp {
 
     class Ftp : public QObject
@@ -21,6 +23,9 @@ namespace Ftp {
         QString user;
         QString passwd;
         Poco::Int16 port;
+
+        void blocking_download_file(Poco::Net::FTPClientSession&, QFile&, QString&);
+
     };
 
 }

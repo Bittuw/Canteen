@@ -22,15 +22,28 @@ Ftp::Ftp::Ftp(QObject *parent) : QObject(parent)
     passwd = ftp_settings.value("FTP/passwd").toString();
 }
 
-///
-///
+
 /// ftp_path путь до папки, local_path - абс путь до файла
 ///
 ///
 bool Ftp::Ftp::download_file(QString ftp_path, QString local_path) {
     Poco::Net::FTPClientSession ftp;
+    QFile in_file(local_path);
+    QFileInfo in_file_info(in_file);
+
+    if(in_file.exists() && in_file_info.size() > 0) {
+        qInfo() << QObject::tr("File '%1' cached").arg(in_file_info.fileName()) << this;
+        return true;
+    }
 
     try {
+
+        auto dns_resolving = Poco::Net::DNS::hostByName(host.toStdString());
+        auto addresses = dns_resolving.addresses();
+        for(auto& address : addresses) {
+            qInfo() << Q_FUNC_INFO << QObject::tr("FTP IP: %1").arg(QString::fromStdString(address.toString())) << this;
+        }
+
         ftp.open(
                     host.toStdString(),
                     static_cast<Poco::UInt16>(port),
@@ -41,8 +54,6 @@ bool Ftp::Ftp::download_file(QString ftp_path, QString local_path) {
         qCritical() << Q_FUNC_INFO << error.what() << this;
         return false;
     }
-
-    QFile in_file(local_path);
 
     if(ftp.isOpen() && in_file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         try {
@@ -76,6 +87,8 @@ bool Ftp::Ftp::download_file(QString ftp_path, QString local_path) {
 
 bool Ftp::Ftp::upload_file(QString local_path, QString ftp_path, QString rename_file) {
     Poco::Net::FTPClientSession ftp;
+    QFile out_file(local_path);
+    QFileInfo out_file_info(out_file);
 
     try {
         ftp.open(
@@ -89,12 +102,9 @@ bool Ftp::Ftp::upload_file(QString local_path, QString ftp_path, QString rename_
         return false;
     }
 
-    QFile out_file(local_path);
-
     if(ftp.isOpen() && out_file.open(QIODevice::ReadOnly)) {
         try {
-
-            rename_file.isEmpty() ? rename_file = out_file.fileName() : nullptr;
+            rename_file.isEmpty() ? rename_file = out_file_info.fileName(): nullptr;
 
             ftp.setWorkingDirectory(ftp_path.toStdString());
             auto& out_stream = ftp.beginUpload(rename_file.toStdString());
@@ -102,8 +112,6 @@ bool Ftp::Ftp::upload_file(QString local_path, QString ftp_path, QString rename_
             out_stream << out_file.readAll().toStdString();
 
             ftp.endUpload();
-            //ftp.cdup();
-
             out_file.close();
             return true;
         } catch(const std::exception& error) {
@@ -111,7 +119,7 @@ bool Ftp::Ftp::upload_file(QString local_path, QString ftp_path, QString rename_
             return false;
         }
     } else {
-        qWarning() << Q_FUNC_INFO << "cannot upload file: " << local_path << this;
+        qWarning() << Q_FUNC_INFO << "Cannot upload file: " << local_path << this;
         return false;
     }
 
@@ -161,3 +169,4 @@ void Ftp::Ftp::delete_file(QString ftp_path, QString ftp_file) {
 
     ftp.close();
 }
+

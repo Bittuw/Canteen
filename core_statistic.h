@@ -18,13 +18,15 @@ namespace Core {
 
     signals:
         void showPersonInfo(Core::Enums::SecondRes, Core::Person); // Status, Person
-        void statisticsCreated(QString, QString = ""); // sales_report, menu (possible)
+        void madeEndDayStatistics(QString, QString = ""); // sales_report, menu (possible) end_day
+        void madeTransitionStatistics(QString, QString = ""); // sales_report, menu (possible) transition
 
     public slots:
         void start();
         void stop();
         void receiveCurrentPerson(Core::Enums::FirstRes, Core::Person); // from device
-        void flush_report();
+        void flush_report(); //
+        void flush_transitional_report(); //
 
     private:
         Statistics::SalesReport m_sales_report;

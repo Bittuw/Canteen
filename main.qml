@@ -26,26 +26,63 @@ ApplicationWindow {
     property int previousY
 
     footer: StatusBar {
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 279
         RowLayout {
-            anchors.left: parent.left
-            Label { text: "Internet activity" }
+            anchors.fill: parent
+            spacing: 5
 
-            Rectangle {
-                width: 15
-                height: 15
-                color: "transparent"
-                StatusIndicator {
-                    anchors.fill: parent
-                    id: ethernetStatus
-                    objectName: "ethernetStatus"
-                    color: "green"
+            RowLayout {
+                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+
+                Label {
+                    text: "Последняя дата обновления:"
+                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                    font.pointSize: 8
                 }
+
+                Label {
+                    id: outputDate
+                    text: TextProviderDate.text
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    font.pointSize: 9
+                    font.family: "Verdana"
+                    wrapMode: Text.WordWrap
+                    objectName: "outputDate"
+                    font.bold: true
+                }
+            }
+
+            ToolSeparator {
+                id: toolSeparator
+                contentItem: Rectangle {
+                    implicitHeight: 10
+                    implicitWidth: 1
+                    color: "#c3c3c3"
+                }
+            }
+
+            RowLayout {
+                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                Label {
+                    text: "Последняя дата-время загрузки:"
+                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                    font.pointSize: 8
+                }
+                Label {
+                    id: outputDateTime
+                    text: TextProviderDateTime.text
+                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                    font.pointSize: 9
+                    font.family: "Verdana"
+                    wrapMode: Text.wrapMode
+                    objectName: "outputDateTime"
+                    font.bold: true
+                }
+            }
+            Item {
+                Layout.fillWidth: true
             }
         }
     }
-
 
 
     ColumnLayout {
@@ -69,22 +106,16 @@ ApplicationWindow {
                 wrapMode: Text.WordWrap
 
                 font.pixelSize: 22
-                objectName: outputName
+                objectName: "outputName"
             }
 
             ImageItem {
                 id: liveImageItem
-                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.fill: parent
+                image: DIProvider.image
                 objectName: "liveImageItem"
-                scale: 0.5
+                scale: 0.6
             }
-
-//            Image {
-//                id: nextImage
-//                anchors.horizontalCenter: parent.horizontalCenter
-//                scale: 0.5
-//                source: "/icons/allowed"
-//            }
         }
     }
 
@@ -106,10 +137,6 @@ ApplicationWindow {
             applicationWindow.setY(applicationWindow.y + dy)
         }
     }
-
-    Connections {
-        target: DIProvider
-        onImageChanged: liveImageItem.image = DIProvider.image
-    }
 }
+
 

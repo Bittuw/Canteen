@@ -83,7 +83,7 @@ void Xml::XmlReader::parce_package() {
 void Xml::XmlReader::parce_batch() {
     auto attrs = xml.attributes();
     batch_context = attrs.value("command").toString();
-    qDebug() << Q_FUNC_INFO << "batch detected with context:"<< batch_context << this;
+    //qDebug() << Q_FUNC_INFO << "batch detected with context:"<< batch_context << this;
 }
 
 void Xml::XmlReader::parce_item() {
@@ -91,7 +91,7 @@ void Xml::XmlReader::parce_item() {
     if(batch_context == "insert") {
        insert_person.insert(parce_item_attrs(attrs));
     };
-    if(batch_context == "update") {
+    if(batch_context == "refresh") {
         update_person.insert(parce_item_attrs(attrs));
     }
     if(batch_context == "delete") {
@@ -112,8 +112,6 @@ Core::Person Xml::XmlReader::parce_item_attrs(QXmlStreamAttributes& attrs) {
         person.image_url = attrs.value("pass_card").toString();
     if(attrs.hasAttribute("name"))
         person.full_name = attrs.value("name").toString();
-
-    qDebug() << Q_FUNC_INFO << "item detected:"<< person.tab_number << this;
-
+    //qDebug() << Q_FUNC_INFO << "item detected:"<< person.tab_number << this;
     return person;
 }
