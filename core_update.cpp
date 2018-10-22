@@ -54,6 +54,8 @@ void Core::Core_Update::timeOut() {
 
 // статистика каждый час
 void Core::Core_Update::hourTimeOut() {
+    auto time = QTime::currentTime();
+    m_hour_timer.start(TO_NEXT_HOUR(time.second(), time.minute()));
     emit makeTransitionStatistics(); // force reports
 }
 
@@ -77,7 +79,7 @@ void Core::Core_Update::statisticsCreated(QString abs_sales_report_file, QString
 //    else
 //        QFile(abs_menu_file).remove();
 
-    emit UploadDateTime(QDateTime::currentDateTime().toString("dd-MM-yyyy hh:mm::ss"));
+    emit UploadDateTime(QDateTime::currentDateTime().toString("dd-MM-yyyy hh:mm:ss"));
 }
 
 void Core::Core_Update::updating() {

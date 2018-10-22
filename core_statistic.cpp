@@ -24,6 +24,8 @@ void Core::Core_Statistic::start() {
     start_date = QDateTime::currentDateTime().toString(date_format);
     start_time = QDateTime::currentDateTime().toString(datetime_format);
     m_sales_report.reestablish(QStringLiteral("report_") + start_date + QStringLiteral("_abort"));
+
+
 }
 
 void Core::Core_Statistic::stop() {
