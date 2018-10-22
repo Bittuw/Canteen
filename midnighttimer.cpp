@@ -14,10 +14,8 @@ void Utils::MidnightTimer::moveToThread(QThread* thread) {
 }
 
 void Utils::MidnightTimer::start(int sec) {
-//    timer.start(msec);
-//    auto is = timer.isActive();
     sec == -1 ?
-                timer.start(NEXT_TIMEOUT(QTime::currentTime().msecsSinceStartOfDay())) :
+                timer.start(TO_NEXT_MIDNIGHT_MSEC(QTime::currentTime().msecsSinceStartOfDay())) :
                 timer.start(sec*1000);
 
     qInfo()<< Q_FUNC_INFO << QObject::tr("Start timer: elapsed msecs: '%1'").arg(timer.remainingTime()) << this;

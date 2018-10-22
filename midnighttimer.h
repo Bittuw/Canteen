@@ -7,9 +7,15 @@
 #include <QThread>
 #include <QTimer>
 
-#define FOUR_HOUR 14400000
-#define TO_MIDNIGHT(msec) 86400000 - msec
-#define NEXT_TIMEOUT(c_msec) TO_MIDNIGHT(c_msec) + FOUR_HOUR
+#define DAY_MSEC 86400000
+#define FOUR_HOUR_MSEC 14400000
+
+// С учетом 1 секунды
+#define TO_MIDNIGHT_MSEC(c_msec) DAY_MSEC - 1000 - c_msec
+#define TO_FOUR_AFTER_MIDNIGHT(c_msec) TO_MIDNIGHT_MSEC(c_msec) + FOUR_HOUR_MSEC
+
+#define TO_NEXT_MIDNIGHT_SEC(c_sec) TO_MIDNIGHT_MSEC(c_sec * 1000)
+#define TO_NEXT_MIDNIGHT_MSEC(c_msec) TO_MIDNIGHT_MSEC(c_msec)
 
 namespace Utils {
     class MidnightTimer : public QObject
