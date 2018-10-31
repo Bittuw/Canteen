@@ -45,21 +45,45 @@ void Core::Core_Update::stop() {
 
 // обновление каждый день
 void Core::Core_Update::timeOut() {
-    qInfo() << Q_FUNC_INFO << "Day end at" << QDateTime::currentDateTime().toString("dd-MM-yyyy") << this;
-    emit makeEndDayStatistics(); // force reports
-    emit ClearDay(); // clear day stats
-    if(check_ethernet()) updating();
-}
+    m_midnight_timer.stop();
+    auto time = QDateTime::currentDateTime();
 
+    hourTimeOut(); // force transition
+
+    emit makeEndDayStatistics(time.toString("yyyy-MM-dd hh:mm:ss")); // force reports
+    emit ClearDay(); // clear day stats
+
+    qInfo() << Q_FUNC_INFO << "Day end at" << time.toString("dd-MM-yyyy") << this;
+
+    while(true) {
+        if(time.time().minute() > 0) {
+            QThread::sleep(static_cast<unsigned long>(60 - time.time().second()));
+            time = QDateTime::currentDateTime();
+        } else break;
+    }
+
+    if(check_ethernet()) updating();
+    m_midnight_timer.start();
+}
 
 // статистика каждый час
 void Core::Core_Update::hourTimeOut() {
-    auto time = QTime::currentTime();
-    m_hour_timer.start(TO_NEXT_HOUR(time.second(), time.minute()));
-    emit makeTransitionStatistics(); // force reports
+    m_hour_timer.stop();
+    auto time = QDateTime::currentDateTime();
+
+    emit makeTransitionStatistics(time.toString("yyyy-MM-dd hh:mm:ss")); // force reports
+
+    while(true) { // Protect from 59 minute
+        if(time.time().minute() > 0) {
+            QThread::sleep(static_cast<unsigned long>(60 - time.time().second()));
+            time = QDateTime::currentDateTime();
+        } else break;
+    }
+
+    m_hour_timer.start(TO_NEXT_HOUR(time.time().second(), time.time().minute()));
 }
 
-// первичная
+// первичная загрузка
 void Core::Core_Update::forceUpdate() {
     if(check_ethernet()) updating();
 }
@@ -68,14 +92,14 @@ void Core::Core_Update::statisticsCreated(QString abs_sales_report_file, QString
 
     qDebug() << Q_FUNC_INFO << QObject::tr("upload file: '%1' AND '%2'").arg(abs_sales_report_file).arg(abs_menu_file) << this;
 
-    /// Залить репор
-    if(!m_ftp.upload_file(abs_sales_report_file, sever))
-        qWarning() << Q_FUNC_INFO << QObject::tr("can not upload file '%1'").arg(QFileInfo(abs_sales_report_file).fileName()) << this;
+    /// Залить репорт
+    if(/*!QFile(abs_sales_report_file).exists() && */!m_ftp.upload_file(abs_sales_report_file, sever))
+        qWarning() << Q_FUNC_INFO << QObject::tr("Can not upload report file '%1'").arg(QFileInfo(abs_sales_report_file).fileName()) << this;
 //    else
 //        QFile(abs_sales_report_file).remove();
 
-    if(m_ftp.upload_file(abs_menu_file, sever))
-        qWarning() << Q_FUNC_INFO << QObject::tr("can not upload file '%1'").arg(QFileInfo(abs_menu_file).fileName()) << this;
+    if(/*!QFile(abs_menu_file).exists() && */!m_ftp.upload_file(abs_menu_file, sever))
+        qWarning() << Q_FUNC_INFO << QObject::tr("can not upload menu file '%1'").arg(QFileInfo(abs_menu_file).fileName()) << this;
 //    else
 //        QFile(abs_menu_file).remove();
 
@@ -115,7 +139,6 @@ void Core::Core_Update::updating() {
             qWarning() << Q_FUNC_INFO << QObject::tr("can not validate file '%1'").arg(current_xml_file) << this; // После неуспешной обработки
         }
     } else {
-
         qCritical() << Q_FUNC_INFO << QObject::tr("can not load file '%1'").arg(current_xml_file) << this;
     }
 }

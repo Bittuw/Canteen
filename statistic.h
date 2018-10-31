@@ -23,12 +23,13 @@ namespace Statistics {
         QString flush_transition_sales_report(QString, QString, QString);
 
         void reestablish(QString); // Восстановить текущий день (если есть)
-        void clear();
         bool contains(const Core::Person&); // Ел?
+        Core::Person& get_person(Core::Person&);
+        void clear();
 
     private:
         QSet<Core::Person> current_persons; // За весь день
-        QSet<Core::Person> current_persons_h; // Для 1 часа
+        //QSet<Core::Person> current_persons_h; // Для 1 часа
 
         QString default_path = QDir::currentPath() + QStringLiteral("/statistic/");
 

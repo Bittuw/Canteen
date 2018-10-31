@@ -21,11 +21,13 @@ void Core::Core_Statistic::moveToThread(QThread* thread) {
 
 void Core::Core_Statistic::start() {
     qDebug() << Q_FUNC_INFO << QObject::tr("start %1").arg(this->metaObject()->className()) << this;
+
     start_date = QDateTime::currentDateTime().toString(date_format);
     start_time = QDateTime::currentDateTime().toString(datetime_format);
+    transition_start_time = start_time;
+
     m_sales_report.reestablish(QStringLiteral("report_") + start_date + QStringLiteral("_abort"));
-
-
+    //m_sales_report.flush_transition_sales_report(start_date, transition_start_time, end_time);
 }
 
 void Core::Core_Statistic::stop() {
@@ -47,6 +49,8 @@ void Core::Core_Statistic::receiveCurrentPerson(Core::Enums::FirstRes status, Co
                 qInfo() << Q_FUNC_INFO << QObject::tr("person '%1' already noted").arg(person.full_name) << this;
                 emit showPersonInfo(Core::Enums::SecondRes::FORBIDDEN, person);
             } else {
+                auto& temp_per = m_sales_report.get_person(person);
+                temp_per.time = QDateTime::currentDateTime().toString(datetime_format);
                 qInfo() << Q_FUNC_INFO << QObject::tr("person '%1' noted").arg(person.full_name) << this;
                 emit showPersonInfo(Core::Enums::SecondRes::ALLOWED, person);
             }
@@ -62,26 +66,37 @@ void Core::Core_Statistic::receiveCurrentPerson(Core::Enums::FirstRes status, Co
     }
 }
 
-void Core::Core_Statistic::flush_report() {
-    end_time = QDateTime::currentDateTime().toString(datetime_format);
+void Core::Core_Statistic::flush_report(QString datetime) {\
+//    flush_transitional_report(datetime); // force transition
 
-    qInfo() << Q_FUNC_INFO << QObject::tr("Flush sales report file '%1' at time from '%2' to '%3'").arg(start_date).arg(start_time).arg(end_time) << this;
+    QDateTime end_time_t = QDateTime::fromString(datetime, datetime_format);
+    QDateTime start_time_t{end_time_t.date(), {0, 0, 0}};
 
-    auto report_file = m_sales_report.flush_sales_report(start_date, start_time, end_time);
-    auto menu_file = m_sales_report.flush_menu(start_date, start_time, end_time);
+    end_time = datetime;
 
-    start_time = end_time;
+    qInfo() << Q_FUNC_INFO << QObject::tr("Flush sales report file '%1.xml' at time from '%2' to '%3'").arg(start_date).arg(start_time).arg(end_time) << this;
+
+    auto report_file = m_sales_report.flush_sales_report(start_date, start_time_t.toString(datetime_format), end_time_t.toString(datetime_format));
+    auto menu_file = m_sales_report.flush_menu(start_date, start_time_t.toString(datetime_format), end_time_t.toString(datetime_format));
+
+    start_time = start_time_t.addDays(1).toString(datetime_format); // check
+    start_date = start_time_t.addDays(1).toString(date_format);
+
     m_sales_report.clear();
 
     emit madeEndDayStatistics(report_file, menu_file);
 }
 
-void Core::Core_Statistic::flush_transitional_report() {
-    qInfo() << Q_FUNC_INFO << QObject::tr("Flush transition sales report file '%1' at time from '%2' to '%3'").arg(start_date).arg(start_time).arg(end_time) << this;
+void Core::Core_Statistic::flush_transitional_report(QString datetime) {
+    QDateTime end_time_t = QDateTime::fromString(datetime, datetime_format);
+    QDateTime start_time_t{end_time_t.date(), {end_time_t.time().hour(), 0, 0}};
 
-    end_time = QDateTime::currentDateTime().toString(datetime_format);
+    end_time = end_time_t.toString(datetime_format);
+    transition_start_time = start_time_t.toString(datetime_format);
 
-    auto report_file = m_sales_report.flush_transition_sales_report(start_date, start_time, end_time);
+    qInfo() << Q_FUNC_INFO << QObject::tr("Flush transition sales report file '%1' at time from '%2' to '%3'").arg(start_date).arg(transition_start_time).arg(end_time) << this;
+
+    auto report_file = m_sales_report.flush_transition_sales_report(start_date, transition_start_time, end_time);
 
     emit madeTransitionStatistics(report_file);
 }

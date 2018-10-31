@@ -1,11 +1,15 @@
 #include "statistic.h"
 
+#include <algorithm>
+
 #include <QXmlStreamAttributes>
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
+#include <QDateTime>
 #include <QDebug>
 #include <QDate>
 #include <QFile>
+#include <QSet>
 
 Statistics::SalesReport::SalesReport(QObject *parent) : QObject(parent)
 {
@@ -23,8 +27,12 @@ bool Statistics::SalesReport::add(const Core::Person& person) {
         return false;
 }
 
+Core::Person& Statistics::SalesReport::get_person(Core::Person& person) {
+    return const_cast<Core::Person&>(*current_persons.find(person));
+}
+
 QString Statistics::SalesReport::flush_sales_report(QString date, QString start_time, QString end_time) {
-    auto xml_file_path = default_path + QStringLiteral("report_") + date + ".xml";
+    auto xml_file_path = default_path + QStringLiteral("report_full_") + date + ".xml";
     return flush_report(xml_file_path, date, start_time, end_time, current_persons);
 }
 
@@ -57,6 +65,7 @@ QString Statistics::SalesReport::flush_abort(QString date, QString start_time, Q
             attrs.append(QStringLiteral("name"), person.full_name);
             attrs.append(QStringLiteral("pass_number"), person.pass_number);
             attrs.append(QStringLiteral("discount"), QString::number(person.discount));
+            attrs.append(QStringLiteral("time"), person.time);
 
             stream.writeAttributes(attrs);
         }
@@ -110,14 +119,14 @@ QString Statistics::SalesReport::flush_menu(QString date, QString start_time, QS
 }
 
 QString Statistics::SalesReport::flush_transition_sales_report(QString date, QString start_time, QString end_time) {
-    auto hour = QDateTime::currentDateTime().toString("hh");
-    auto xml_file_path = default_path + QStringLiteral("report_") + date + "_" + hour +".xml";
-
-    auto temp_cp = current_persons;
-    auto temp_cp_h = current_persons_h;
-    auto temp_cp_to_xml = temp_cp.subtract(temp_cp_h);
-    current_persons_h = temp_cp_to_xml + current_persons_h;
-
+    auto hour = QDateTime::fromString(start_time, "yyyy-MM-dd hh:mm:ss").toString("hh");
+    date = date + "_" + hour;
+    auto xml_file_path = default_path + QStringLiteral("report_") + date + ".xml";
+    QSet<Core::Person> temp_cp_to_xml;
+    for(auto& person: current_persons) {
+        if(QDateTime::fromString(person.time, "yyyy-MM-dd hh:mm:ss").time().hour() == hour.toInt())
+            temp_cp_to_xml.insert(person);
+    }
     return flush_report(xml_file_path, date, start_time, end_time, temp_cp_to_xml);
 }
 
@@ -145,6 +154,7 @@ void Statistics::SalesReport::reestablish(QString file) {
                 person.full_name = attrs.value("name").toString();
                 person.pass_number = attrs.value("pass_number").toString();
                 person.discount = attrs.value("discount").toInt();
+                person.time = attrs.value("time").toString();
 
                 current_persons.insert(person);
             }
@@ -154,7 +164,6 @@ void Statistics::SalesReport::reestablish(QString file) {
 
 void Statistics::SalesReport::clear() {
     current_persons.clear();
-    current_persons_h.clear();
 }
 
 bool Statistics::SalesReport::contains(const Core::Person& person) {
@@ -212,8 +221,14 @@ QString Statistics::SalesReport::flush_report(QString xml_file_path, QString dat
             QXmlStreamAttributes attrs;
 
             attrs.append(QStringLiteral("id"), QString::number(id_bill));
+            attrs.append(QStringLiteral("amount"), QString::number(150 - (150/100) * person.discount ));
             attrs.append("tab_number", QString::number(person.tab_number));
-            attrs.append(QStringLiteral("ammount"), QString::number(150 - (150/100) * person.discount ));
+            attrs.append("bill_datetime", person.time);
+            attrs.append("pass_number", person.pass_number);
+
+            attrs.append("cash_register", QStringLiteral(""));
+            attrs.append("shift_number", QStringLiteral(""));
+            attrs.append("bill_number", QStringLiteral(""));
 
             stream.writeAttributes(attrs);
         }
@@ -239,9 +254,9 @@ QString Statistics::SalesReport::flush_report(QString xml_file_path, QString dat
             attrs.append(QStringLiteral("name"), "Комплексный обед");
             attrs.append(QStringLiteral("quantity"), QString::number(1));
             attrs.append(QStringLiteral("price"), QString::number(150));
-            attrs.append(QStringLiteral("ammount"), QString::number(150));
+            attrs.append(QStringLiteral("amount"), QString::number(150));
             attrs.append(QStringLiteral("discount_percent"), QString::number(person.discount));
-            attrs.append(QStringLiteral("total_ammount"), QString::number(static_cast<double>(150 - (150/100) * person.discount )));
+            attrs.append(QStringLiteral("total_amount"), QString::number(static_cast<double>(150 - (150/100) * person.discount )));
             attrs.append(QStringLiteral("volume"), QStringLiteral(""));
 
             stream.writeAttributes(attrs);

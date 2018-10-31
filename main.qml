@@ -10,20 +10,28 @@ import com.bittumworker.org 1.0
 ApplicationWindow {
 
     id: applicationWindow
-    visible: true
-    width: 650
-    height: 300
 
-    minimumWidth: 650
+    visible: true
+//    visibility: "Maximized"
+
+//    width: 650
+//    height: 300
+
+    minimumWidth: 700
     minimumHeight: 300
 
-    maximumWidth: 650
-    maximumHeight: 300
+//    maximumWidth: 650
+//    maximumHeight: 300
 
     title: qsTr("Canteen test")
 
     property int previousX
     property int previousY
+
+    Shortcut {
+        sequence: "Esc"
+        onActivated: applicationWindow.close()
+    }
 
     footer: StatusBar {
         RowLayout {
@@ -54,7 +62,7 @@ ApplicationWindow {
             ToolSeparator {
                 id: toolSeparator
                 contentItem: Rectangle {
-                    implicitHeight: 10
+                    implicitHeight: 15
                     implicitWidth: 1
                     color: "#c3c3c3"
                 }
@@ -78,12 +86,36 @@ ApplicationWindow {
                     font.bold: true
                 }
             }
+
+            ToolSeparator {
+                id: toolSeparator2
+                contentItem: Rectangle {
+                    implicitHeight: 15
+                    implicitWidth: 1
+                    color: "#c3c3c3"
+                }
+            }
+
+            RowLayout {
+                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                CheckBox {
+                    text: "Full Screen"
+                    height: showButton.height
+                    width: col.cellWidth
+//                    Binding on checked { value: applicationWindow.visibility === Window.Windowed }
+                    onClicked: {
+                        if(checked)
+                            applicationWindow.visibility = Window.FullScreen
+                        else
+                            applicationWindow.visibility = Window.Windowed
+                    }
+                }
+            }
             Item {
                 Layout.fillWidth: true
             }
         }
     }
-
 
     ColumnLayout {
         id: columnLayout
@@ -140,3 +172,8 @@ ApplicationWindow {
 }
 
 
+
+/*##^## Designer {
+    D{i:0;autoSize:true;height:480;width:640}
+}
+ ##^##*/

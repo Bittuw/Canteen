@@ -25,18 +25,21 @@ namespace Core {
         void start();
         void stop();
         void receiveCurrentPerson(Core::Enums::FirstRes, Core::Person); // from device
-        void flush_report(); //
-        void flush_transitional_report(); //
+
+        void flush_report(QString); //
+        void flush_transitional_report(QString); //
 
     private:
         Statistics::SalesReport m_sales_report;
 
-        QString date_format = QStringLiteral("ddMMyyyy");
-        QString datetime_format = QStringLiteral("yyyy-MM-dd HH:mm:ss");
+        QString date_format = QStringLiteral("yyyyMMdd");
+        QString datetime_format = QStringLiteral("yyyy-MM-dd hh:mm:ss");
 
         QString start_date;
         QString start_time;
         QString end_time;
+
+        QString transition_start_time;
 
         Q_DISABLE_COPY(Core_Statistic)
     };

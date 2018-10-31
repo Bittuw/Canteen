@@ -32,6 +32,7 @@ namespace Core {
         QString pass_number; // Номер пропуска
         QUrl image_url; // Ссылка на картинку (Какую хотите)
         int discount = 0; // Скидка
+        QString time; // hh:MM:ss
 
         inline bool operator<(const Person& obj) const {
             return this->tab_number<obj.tab_number;

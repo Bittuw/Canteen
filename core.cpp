@@ -28,8 +28,8 @@ Core::Core::Core(QObject *parent) : QObject(parent)
     QObject::connect(&m_update, &Core_Update::UploadDateTime, [this](QString msg){m_text_provider_datetime.setText(msg);});
     QObject::connect(this, &Core::force_ftp_update, &m_update, &Core_Update::forceUpdate);
 
-//    QObject::connect(this,&Core::test_receiveCard, &m_device, &Core_Device::receiveCard); // test
-//    QObject::connect(&m_update, &Core_Update::newPersonList, this, &Core::setNewList); // Установка нового списка пользователей
+    /*QObject::connect(this,&Core::test_receiveCard, &m_device, &Core_Device::receiveCard); // test
+    QObject::connect(&m_update, &Core_Update::newPersonList, this, &Core::setNewList);*/ // Установка нового списка пользователей
 }
 
 void Core::Core::moveToThread(QThread *thread) {
@@ -82,7 +82,7 @@ void Core::Core::stop() {
 
 //void Core::Core::setNewList(QSet<Person> pe) {
 //    Q_UNUSED(pe);
-//    //emit test_receiveCard({"83", "1", ""});
+//    emit test_receiveCard({"83", "1", ""});
 //}
 
 void Core::Core::showPersonInfo(Enums::SecondRes status, Person person) {

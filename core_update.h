@@ -29,8 +29,8 @@ namespace Core {
         void DownloadDate(QString);
         void UploadDateTime(QString);
 
-        void makeEndDayStatistics(); // End Day stats
-        void makeTransitionStatistics(); // Trasitions stats
+        void makeEndDayStatistics(QString); // End Day stats
+        void makeTransitionStatistics(QString); // Trasitions stats
         void newPersonList(QSet<Core::Person>); // Person list
 
     public slots:

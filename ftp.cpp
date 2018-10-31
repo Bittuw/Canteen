@@ -27,7 +27,6 @@ Ftp::Ftp::Ftp(QObject *parent) : QObject(parent)
 ///
 ///
 bool Ftp::Ftp::download_file(QString ftp_path, QString local_path) {
-    Poco::Net::FTPClientSession ftp;
     QFile in_file(local_path);
     QFileInfo in_file_info(in_file);
 
@@ -35,6 +34,8 @@ bool Ftp::Ftp::download_file(QString ftp_path, QString local_path) {
         qInfo() << QObject::tr("File '%1' cached").arg(in_file_info.fileName()) << this;
         return true;
     }
+
+    Poco::Net::FTPClientSession ftp;
 
     try {
 

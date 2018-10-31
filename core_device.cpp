@@ -1,6 +1,7 @@
-#include <QDebug>
-
 #include "core_device.h"
+
+#include <QDebug>
+#include <QTime>
 
 Core::Core_Device::Core_Device(QObject *parent) : QObject(parent)
 {
