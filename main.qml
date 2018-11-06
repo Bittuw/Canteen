@@ -12,7 +12,7 @@ ApplicationWindow {
     id: applicationWindow
 
     visible: true
-//    visibility: "Maximized"
+    modality: "WindowModal"
 
 //    width: 650
 //    height: 300
@@ -29,6 +29,7 @@ ApplicationWindow {
     property int previousY
 
     Shortcut {
+        id: escaping
         sequence: "Esc"
         onActivated: applicationWindow.close()
     }
@@ -100,9 +101,8 @@ ApplicationWindow {
                 Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
                 CheckBox {
                     text: "Full Screen"
-                    height: showButton.height
-                    width: col.cellWidth
-//                    Binding on checked { value: applicationWindow.visibility === Window.Windowed }
+                    height: parent.height
+                    width: parent.width
                     onClicked: {
                         if(checked)
                             applicationWindow.visibility = Window.FullScreen
@@ -148,6 +148,15 @@ ApplicationWindow {
                 objectName: "liveImageItem"
                 scale: 0.6
             }
+        }
+    }
+
+    MouseArea {
+        id: alt_tab_fake
+        anchors.fill: parent
+        hoverEnabled: true
+        onEntered: {
+            applicationWindow.update()
         }
     }
 

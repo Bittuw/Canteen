@@ -3,6 +3,7 @@
 
 #include <functional>
 
+#include <QDateTime>
 #include <QObject>
 #include <QThread>
 #include <QTimer>
@@ -26,7 +27,7 @@ namespace Utils {
         explicit MidnightTimer(QObject *parent = nullptr);
         void moveToThread(QThread*);
     signals:
-        void TimeOut();
+        void TimeOut(QDateTime);
     public slots:
         void start(int sec = -1);
         void stop();

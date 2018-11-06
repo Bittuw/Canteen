@@ -5,7 +5,7 @@
 
 Utils::MidnightTimer::MidnightTimer(QObject *parent) : QObject(parent)
 {
-    QObject::connect(&timer, &QTimer::timeout, [this](){ emit this->TimeOut(); });
+    QObject::connect(&timer, &QTimer::timeout, [this](){ emit this->TimeOut(QDateTime::currentDateTime()); });
 }
 
 void Utils::MidnightTimer::moveToThread(QThread* thread) {

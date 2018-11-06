@@ -1,6 +1,7 @@
 #ifndef CORE_UPDATE_H
 #define CORE_UPDATE_H
 
+#include <QDateTime>
 #include <QObject>
 #include <QPair>
 #include <QSet>
@@ -37,13 +38,17 @@ namespace Core {
         void start();
         void stop();
 
-        void timeOut();
-        void hourTimeOut();
+        //void timeOut(QDateTime);
+        void hourTimeOut(QDateTime);
         void forceUpdate();
         void statisticsCreated(QString, QString = "");
 
     private:
-        Utils::MidnightTimer m_midnight_timer;
+        //int transitions_report_hour = 0;
+
+        //QDateTime current_date;
+
+        //Utils::MidnightTimer m_midnight_timer;
         Utils::MidnightTimer m_hour_timer;
 
         QString utkonos = QStringLiteral("utkonos");
@@ -64,7 +69,7 @@ namespace Core {
         QSet<QPair<QString, QString>> m_not_loaded_to_ftp; // not uploaded path_file + to_ftp_path
         QSet<QPair<QString, QString>> m_not_downloaded_from_ftp; // path + file_name
 
-        void updating();
+        void updating(QDateTime = QDateTime::currentDateTime());
         bool check_ethernet();
 
         Q_DISABLE_COPY(Core_Update)

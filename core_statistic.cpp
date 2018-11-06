@@ -71,13 +71,17 @@ void Core::Core_Statistic::flush_report(QString datetime) {\
 
     QDateTime end_time_t = QDateTime::fromString(datetime, datetime_format);
     QDateTime start_time_t{end_time_t.date(), {0, 0, 0}};
+    QDate file_name = start_time_t.date();
 
     end_time = datetime;
 
-    qInfo() << Q_FUNC_INFO << QObject::tr("Flush sales report file '%1.xml' at time from '%2' to '%3'").arg(start_date).arg(start_time).arg(end_time) << this;
+    qInfo() << Q_FUNC_INFO <<
+               QObject::tr("Flush sales report file '%1.xml' at time from '%2' to '%3'")
+                .arg(file_name.toString(date_format))
+                .arg(start_time_t.toString(datetime_format)).arg(end_time) << this;
 
-    auto report_file = m_sales_report.flush_sales_report(start_date, start_time_t.toString(datetime_format), end_time_t.toString(datetime_format));
-    auto menu_file = m_sales_report.flush_menu(start_date, start_time_t.toString(datetime_format), end_time_t.toString(datetime_format));
+    auto report_file = m_sales_report.flush_sales_report(file_name.toString(date_format), start_time_t.toString(datetime_format), end_time_t.toString(datetime_format));
+    auto menu_file = m_sales_report.flush_menu(file_name.toString(date_format), start_time_t.toString(datetime_format), end_time_t.toString(datetime_format));
 
     start_time = start_time_t.addDays(1).toString(datetime_format); // check
     start_date = start_time_t.addDays(1).toString(date_format);
@@ -90,13 +94,14 @@ void Core::Core_Statistic::flush_report(QString datetime) {\
 void Core::Core_Statistic::flush_transitional_report(QString datetime) {
     QDateTime end_time_t = QDateTime::fromString(datetime, datetime_format);
     QDateTime start_time_t{end_time_t.date(), {end_time_t.time().hour(), 0, 0}};
+    QDate file_name = start_time_t.date();
 
     end_time = end_time_t.toString(datetime_format);
     transition_start_time = start_time_t.toString(datetime_format);
 
-    qInfo() << Q_FUNC_INFO << QObject::tr("Flush transition sales report file '%1' at time from '%2' to '%3'").arg(start_date).arg(transition_start_time).arg(end_time) << this;
+    qInfo() << Q_FUNC_INFO << QObject::tr("Flush transition sales report file '%1' at time from '%2' to '%3'").arg(file_name.toString(date_format)).arg(transition_start_time).arg(end_time) << this;
 
-    auto report_file = m_sales_report.flush_transition_sales_report(start_date, transition_start_time, end_time);
+    auto report_file = m_sales_report.flush_transition_sales_report(file_name.toString(date_format), transition_start_time, end_time);
 
     emit madeTransitionStatistics(report_file);
 }

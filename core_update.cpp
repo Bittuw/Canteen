@@ -21,10 +21,10 @@ void Core::Core_Update::moveToThread(QThread* thread) {
 
     QObject::connect(thread, &QThread::started, this, &Core_Update::start);
     QObject::connect(thread, &QThread::finished, this, &Core_Update::stop);
-    QObject::connect(&m_midnight_timer, &Utils::MidnightTimer::TimeOut, this, &Core_Update::timeOut);
+    //QObject::connect(&m_midnight_timer, &Utils::MidnightTimer::TimeOut, this, &Core_Update::timeOut);
     QObject::connect(&m_hour_timer, &Utils::MidnightTimer::TimeOut, this, &Core_Update::hourTimeOut);
 
-    m_midnight_timer.moveToThread(thread);
+    //m_midnight_timer.moveToThread(thread);
     m_hour_timer.moveToThread(thread);
     QObject::moveToThread(thread);
 }
@@ -32,55 +32,83 @@ void Core::Core_Update::moveToThread(QThread* thread) {
 void Core::Core_Update::start() {
     qDebug() << Q_FUNC_INFO << QObject::tr("start %1").arg(this->metaObject()->className()) << this;
     auto time = QTime::currentTime();
-    m_hour_timer.start(TO_NEXT_HOUR(time.second(), time.minute()));
-    m_midnight_timer.start();
+    //m_midnight_timer.start();
+    m_hour_timer.start(TO_NEXT_HOUR(time.second(), time.minute()) );
+    //current_date = QDateTime::currentDateTime();
 }
 
 void Core::Core_Update::stop() {
     qDebug() << Q_FUNC_INFO << QObject::tr("stop %1").arg(this->metaObject()->className()) << this;
-    m_midnight_timer.stop();
     m_hour_timer.stop();
+    //m_midnight_timer.stop();
 }
 
 
 // обновление каждый день
-void Core::Core_Update::timeOut() {
-    m_midnight_timer.stop();
-    auto time = QDateTime::currentDateTime();
+//void Core::Core_Update::timeOut(QDateTime time_point) {
+//    m_midnight_timer.stop();
 
-    hourTimeOut(); // force transition
+//    if(transitions_report_hour != 23) {
+//        hourTimeOut(time_point); // force transition
+//    }
 
-    emit makeEndDayStatistics(time.toString("yyyy-MM-dd hh:mm:ss")); // force reports
-    emit ClearDay(); // clear day stats
+//    auto time = time_point;
 
-    qInfo() << Q_FUNC_INFO << "Day end at" << time.toString("dd-MM-yyyy") << this;
+//    if(current_date < time_point) {
+//        emit makeEndDayStatistics(current_date.toString("yyyy-MM-dd 23:59:59")); // force reports
+//        emit ClearDay(); // clear day stats
+//    } else {
+//        emit makeEndDayStatistics(time.toString("yyyy-MM-dd 23:59:59")); // force reports
+//        emit ClearDay(); // clear day stats
+//    }
 
-    while(true) {
-        if(time.time().minute() > 0) {
-            QThread::sleep(static_cast<unsigned long>(60 - time.time().second()));
-            time = QDateTime::currentDateTime();
-        } else break;
-    }
+//    qInfo() << Q_FUNC_INFO << "Day end at" << time.toString("dd-MM-yyyy 23:59:59") << this;
 
-    if(check_ethernet()) updating();
-    m_midnight_timer.start();
-}
+//    current_date = QDateTime::currentDateTime();
+
+//    if(current_date.date() < time_point.date())
+//            while(true) {
+//                if(time.time().minute() > 0) {
+//                    QThread::sleep(static_cast<unsigned long>(60 - time.time().second()));
+//                    current_date = QDateTime::currentDateTime();
+//                } else break;
+//            }
+
+//    if(check_ethernet()) updating();
+//    m_midnight_timer.start();
+//}
 
 // статистика каждый час
-void Core::Core_Update::hourTimeOut() {
+void Core::Core_Update::hourTimeOut(QDateTime time_point) {
     m_hour_timer.stop();
-    auto time = QDateTime::currentDateTime();
 
-    emit makeTransitionStatistics(time.toString("yyyy-MM-dd hh:mm:ss")); // force reports
+    //emit makeTransitionStatistics(time_point.toString("yyyy-MM-dd hh:mm:ss")); // force reports
 
-    while(true) { // Protect from 59 minute
-        if(time.time().minute() > 0) {
-            QThread::sleep(static_cast<unsigned long>(60 - time.time().second()));
-            time = QDateTime::currentDateTime();
-        } else break;
+    if(time_point.time().hour() == 23) {
+       // emit makeEndDayStatistics(time_point.toString("yyyy-MM-dd hh:mm:ss"));
+        emit ClearDay();
+        if(check_ethernet()) updating(time_point.addDays(1));
     }
 
-    m_hour_timer.start(TO_NEXT_HOUR(time.time().second(), time.time().minute()));
+    auto time = QDateTime::currentDateTime();
+
+    if(time.time().hour() != time_point.time().hour()) {
+                m_hour_timer.start(
+                            TO_NEXT_HOUR(
+                                time.time().second(),
+                                time.time().minute())
+                            );
+    }
+    else {
+                m_hour_timer.start(
+                        TO_NEXT_HOUR(
+                            (time.time().second() - 60),
+                            (time.time().minute() - 60)
+                        )
+                    );
+    }
+
+    qInfo() << Q_FUNC_INFO << "To next hour is:" << TO_NEXT_HOUR(time.time().second(), time.time().minute()) << this;
 }
 
 // первичная загрузка
@@ -106,9 +134,9 @@ void Core::Core_Update::statisticsCreated(QString abs_sales_report_file, QString
     emit UploadDateTime(QDateTime::currentDateTime().toString("dd-MM-yyyy hh:mm:ss"));
 }
 
-void Core::Core_Update::updating() {
+void Core::Core_Update::updating(QDateTime time_point) {
 
-    auto current_date =  QDate::currentDate().toString(date_format);
+    auto current_date =  time_point.toString(date_format);
     auto current_xml_file = "client_" + current_date + ".xml";
     auto abs_current_xml_file = m_download_ftp + current_xml_file;
 
