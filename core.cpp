@@ -61,6 +61,10 @@ TextField* Core::Core::getTextProviderDateTime() {
     return &m_text_provider_datetime;
 }
 
+QObject* Core::Core::getComplexProvider() {
+    return &m_statistic;
+}
+
 void Core::Core::start() {
     qDebug() << Q_FUNC_INFO << "core started" << this;
 

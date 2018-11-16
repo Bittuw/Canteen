@@ -22,17 +22,19 @@ namespace Statistics {
         QString flush_menu(QString,QString, QString);
         QString flush_transition_sales_report(QString, QString, QString);
 
+        void set_complex(quint16);
+
         void reestablish(QString); // Восстановить текущий день (если есть)
         bool contains(const Core::Person&); // Ел?
         Core::Person& get_person(Core::Person&);
         void clear();
 
     private:
+        quint16 m_complex = 150;
+
         QSet<Core::Person> current_persons; // За весь день
-        //QSet<Core::Person> current_persons_h; // Для 1 часа
 
         QString default_path = QDir::currentPath() + QStringLiteral("/statistic/");
-
         QString flush_report(QString, QString, QString, QString, QSet<Core::Person>&);
     };
 

@@ -1,4 +1,5 @@
 import QtQuick 2.11
+import QtQuick.Dialogs 1.2
 import QtQuick.Extras 1.4
 import QtQuick.Layouts 1.3
 import QtQuick.Window 2.11
@@ -12,7 +13,7 @@ ApplicationWindow {
     id: applicationWindow
 
     visible: true
-    modality: "WindowModal"
+    modality: Qt.WindowModal
 
 //    width: 650
 //    height: 300
@@ -32,6 +33,52 @@ ApplicationWindow {
         id: escaping
         sequence: "Esc"
         onActivated: applicationWindow.close()
+    }
+
+    menuBar: MenuBar {
+        id: menuBar
+
+        Menu {
+            title: qsTr("Edit")
+            MenuItem {
+                text: "Изменить стоимость обеда"
+                onTriggered: changeDialog.open();
+            }
+        }
+
+        delegate: MenuBarItem {
+            id: menuBarItem
+
+            contentItem: Text {
+                text: menuBarItem.text
+                font: menuBarItem.font
+                opacity: enabled ? 1.0 : 0.3
+                color: menuBarItem.highlighted ? "#ffffff" : "#21be2b"
+                horizontalAlignment: Text.AlignLeft
+                verticalAlignment: Text.AlignVCenter
+                elide: Text.ElideRight
+            }
+
+            background: Rectangle {
+                implicitWidth: 40
+                implicitHeight: 40
+                opacity: enabled ? 1 : 0.3
+                color: menuBarItem.highlighted ? "#21be2b" : "transparent"
+            }
+        }
+
+        background: Rectangle {
+            implicitWidth: 40
+            implicitHeight: 40
+            color: "#ffffff"
+
+            Rectangle {
+                color: "#21be2b"
+                width: parent.width
+                height: 1
+                anchors.bottom: parent.bottom
+            }
+        }
     }
 
     footer: StatusBar {
@@ -178,8 +225,27 @@ ApplicationWindow {
             applicationWindow.setY(applicationWindow.y + dy)
         }
     }
-}
 
+    Dialog {
+        id: changeDialog
+        title: "Изменить стоимость обеда"
+        contentItem: Rectangle {
+            TextField {
+                id: inputCost
+                placeholderText: qsTr("Number field")
+                validator: IntValidator {bottom: 1; top: 500;}
+                onAccepted: { changeDialog.accept() }
+            }
+        }
+
+        standardButtons: StandardButton.Save | StandardButton.Cancel
+
+        onAccepted: {
+            var cost = inputCost.text;
+            ComplexProvider.set_complex_cost(cost)
+        }
+    }
+}
 
 
 /*##^## Designer {

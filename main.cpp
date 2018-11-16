@@ -71,7 +71,10 @@ void myMessageHandler(QtMsgType type, QMessageLogContext &context, const QString
 
 int main(int argc, char *argv[])
 {
+#ifndef QT_DEBUG
     qInstallMessageHandler(reinterpret_cast<QtMessageHandler>(myMessageHandler));
+#endif
+
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QGuiApplication app(argc, argv);
 
@@ -96,6 +99,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("TextProvider", core.getTextProvider());
     engine.rootContext()->setContextProperty("TextProviderDate", core.getTextProviderStatus());
     engine.rootContext()->setContextProperty("TextProviderDateTime", core.getTextProviderDateTime());
+    engine.rootContext()->setContextProperty("ComplexProvider", core.getComplexProvider());
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
     if (engine.rootObjects().isEmpty())

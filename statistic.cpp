@@ -162,6 +162,10 @@ void Statistics::SalesReport::reestablish(QString file) {
     }
 }
 
+void Statistics::SalesReport::set_complex(quint16 complex) {
+    m_complex = complex;
+}
+
 void Statistics::SalesReport::clear() {
     current_persons.clear();
 }
@@ -221,7 +225,7 @@ QString Statistics::SalesReport::flush_report(QString xml_file_path, QString dat
             QXmlStreamAttributes attrs;
 
             attrs.append(QStringLiteral("id"), QString::number(id_bill));
-            attrs.append(QStringLiteral("amount"), QString::number(150 - (150/100) * person.discount ));
+            attrs.append(QStringLiteral("amount"), QString::number(m_complex - (m_complex/100) * person.discount ));
             attrs.append("tab_number", QString::number(person.tab_number));
             attrs.append("bill_datetime", person.time);
             attrs.append("pass_number", person.pass_number);
@@ -253,10 +257,10 @@ QString Statistics::SalesReport::flush_report(QString xml_file_path, QString dat
             attrs.append(QStringLiteral("dish_id"), QString::number(1));
             attrs.append(QStringLiteral("name"), "Комплексный обед");
             attrs.append(QStringLiteral("quantity"), QString::number(1));
-            attrs.append(QStringLiteral("price"), QString::number(150));
-            attrs.append(QStringLiteral("amount"), QString::number(150));
+            attrs.append(QStringLiteral("price"), QString::number(m_complex));
+            attrs.append(QStringLiteral("amount"), QString::number(m_complex));
             attrs.append(QStringLiteral("discount_percent"), QString::number(person.discount));
-            attrs.append(QStringLiteral("total_amount"), QString::number(static_cast<double>(150 - (150/100) * person.discount )));
+            attrs.append(QStringLiteral("total_amount"), QString::number(static_cast<double>(m_complex - (m_complex/100) * person.discount )));
             attrs.append(QStringLiteral("volume"), QStringLiteral(""));
 
             stream.writeAttributes(attrs);

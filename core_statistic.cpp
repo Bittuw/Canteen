@@ -105,3 +105,8 @@ void Core::Core_Statistic::flush_transitional_report(QString datetime) {
 
     emit madeTransitionStatistics(report_file);
 }
+
+void Core::Core_Statistic::set_complex_cost(QString complex_cost) {
+    m_sales_report.set_complex(complex_cost.toInt());
+    qInfo() << Q_FUNC_INFO << QObject::tr("Set new cost: %1").arg(complex_cost) << this;
+}

@@ -29,6 +29,8 @@ namespace Core {
         void flush_report(QString); //
         void flush_transitional_report(QString); //
 
+        void set_complex_cost(QString);
+
     private:
         Statistics::SalesReport m_sales_report;
 

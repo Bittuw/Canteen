@@ -24,6 +24,7 @@ namespace Core {
         TextField* getTextProvider();
         TextField* getTextProviderStatus();
         TextField* getTextProviderDateTime();
+        QObject* getComplexProvider();
 
     signals:
         void force_ftp_update();
@@ -32,7 +33,7 @@ namespace Core {
     public slots:
         void start();
         void stop();
-        //void setNewList(QSet<Person>);
+
         void showPersonInfo(Enums::SecondRes,Person);
 
     private:
