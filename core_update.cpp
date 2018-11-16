@@ -82,10 +82,10 @@ void Core::Core_Update::stop() {
 void Core::Core_Update::hourTimeOut(QDateTime time_point) {
     m_hour_timer.stop();
 
-    //emit makeTransitionStatistics(time_point.toString("yyyy-MM-dd hh:mm:ss")); // force reports
+    emit makeTransitionStatistics(time_point.toString("yyyy-MM-dd hh:mm:ss")); // force reports
 
     if(time_point.time().hour() == 23) {
-       // emit makeEndDayStatistics(time_point.toString("yyyy-MM-dd hh:mm:ss"));
+        emit makeEndDayStatistics(time_point.toString("yyyy-MM-dd hh:mm:ss"));
         emit ClearDay();
         if(check_ethernet()) updating(time_point.addDays(1));
     }
@@ -102,8 +102,8 @@ void Core::Core_Update::hourTimeOut(QDateTime time_point) {
     else {
                 m_hour_timer.start(
                         TO_NEXT_HOUR(
-                            (time.time().second() - 60),
-                            (time.time().minute() - 60)
+                            (time.time().second() - 59),
+                            (time.time().minute() - 59)
                         )
                     );
     }
