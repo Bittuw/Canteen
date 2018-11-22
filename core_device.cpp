@@ -1,9 +1,12 @@
 #include "core_device.h"
 
+#include <QSignalBlocker>
 #include <QDebug>
 #include <QTime>
 
-Core::Core_Device::Core_Device(QObject *parent) : QObject(parent)
+Core::Core_Device::Core_Device(QObject *parent) :
+    QObject(parent),
+    m_block_device(m_reader)
 {
     qDebug() << Q_FUNC_INFO << "create 'Core_Device'" << this;
 
@@ -15,12 +18,17 @@ void Core::Core_Device::moveToThread(QThread* thread) {
 
     QObject::connect(thread, &QThread::started, this, &Core_Device::start);
     QObject::connect(thread, &QThread::finished, this, &Core_Device::stop);
+    QObject::connect(&m_block_device_timer, &Utils::MidnightTimer::TimeOut, [this](){
+        m_block_device_timer.stop();
+        m_block_device.unblock();
+    });
 
     m_reader.moveToThread(thread);
     QObject::moveToThread(thread);
 }
 
 void Core::Core_Device::start() {
+    m_block_device.unblock();
     qDebug() << Q_FUNC_INFO << "start 'Core_Device'" << this;
 }
 
@@ -30,6 +38,12 @@ void Core::Core_Device::setPersonList(QSet<Core::Person> allowed_list) {
 }
 
 void Core::Core_Device::receiveCard(IronLogic::Card card) {
+
+    {
+        m_block_device.reblock();
+        m_block_device_timer.start(3);
+    }
+
     m_raw_person = card;
     auto pass_number =
             QString("%1").arg(m_raw_person.serial.toInt(), 3, 10, QChar('0')) +

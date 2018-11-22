@@ -69,7 +69,6 @@ void IronLogic::Z2USB::handleError(QSerialPort::SerialPortError error) {
 }
 
 void IronLogic::Z2USB::checkKey() {
-
     auto start_index = 0;
     if((start_index = m_buffer.indexOf("Em")) != -1 && m_buffer.size() > CARD_MESSAGE) {
         m_buffer = m_buffer.mid(start_index, m_buffer.size());

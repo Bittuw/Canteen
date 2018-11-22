@@ -110,7 +110,7 @@ void Core::Core::showPersonInfo(Enums::SecondRes status, Person person) {
     }
     case Enums::SecondRes::NOT_FOUND: {
         m_image_updater.setImage(m_not_found_img);
-        m_text_provider.setText(QStringLiteral("Not found!"));
+        m_text_provider.setText(QStringLiteral("Not found or unrecognized, try again!"));
         break;
     }
     default: {

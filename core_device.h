@@ -1,10 +1,12 @@
 #ifndef CORE_DEVICE_H
 #define CORE_DEVICE_H
 
+#include <QSignalBlocker>
 #include <QObject>
 #include <QThread>
 #include <QSet>
 
+#include "midnighttimer.h"
 #include "person.h"
 #include "z2usb.h"
 
@@ -27,6 +29,9 @@ namespace Core {
         void receiveCard(IronLogic::Card);
 
     private:
+        Utils::MidnightTimer m_block_device_timer;
+        QSignalBlocker m_block_device;
+
         IronLogic::Z2USB m_reader;
 
         Core::Person m_last_person;

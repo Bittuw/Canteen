@@ -39,10 +39,10 @@ ApplicationWindow {
         id: menuBar
 
         Menu {
-            title: qsTr("Edit")
+            title: qsTr("Изменить...")
             MenuItem {
                 text: "Изменить стоимость обеда"
-                onTriggered: changeDialog.open();
+                onTriggered: {changeDialog.open(); inputCost.forceActiveFocus();}
             }
         }
 
@@ -229,10 +229,19 @@ ApplicationWindow {
     Dialog {
         id: changeDialog
         title: "Изменить стоимость обеда"
-        contentItem: Rectangle {
+        contentItem: ColumnLayout {
+            Text {
+                id: dialogText
+                text: qsTr("\"Только с следующего календарного дня\"")
+                font.italic: true
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                opacity: 0.6
+            }
             TextField {
                 id: inputCost
+                focus: true
                 placeholderText: qsTr("Number field")
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 validator: IntValidator {bottom: 1; top: 500;}
                 onAccepted: { changeDialog.accept() }
             }

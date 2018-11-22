@@ -34,6 +34,7 @@ void Core::Core_Statistic::stop() {
     end_time = QDateTime::currentDateTime().toString(datetime_format);
     if(start_date == QDateTime::currentDateTime().toString(date_format))
                 m_sales_report.flush_abort(start_date + QStringLiteral("_abort"), start_time, end_time);
+    m_sales_report.clear();
     qDebug() << Q_FUNC_INFO << QObject::tr("stop %1").arg(this->metaObject()->className()) << this;
 }
 
