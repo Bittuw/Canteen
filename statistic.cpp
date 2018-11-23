@@ -17,6 +17,7 @@ Statistics::SalesReport::SalesReport(QObject *parent) : QObject(parent)
     if(!QDir(default_path).exists())
         QDir::current().mkdir("statistic");
     QSettings ftp_settings(QDir::currentPath() + "/ftp.ini", QSettings::IniFormat);
+//    m_pass_through_numbering = ftp_settings.value("FTP/ptn").toInt();
     m_complex_old = ftp_settings.value("FTP/cost").toInt();
     m_complex = m_complex_old;
 }
@@ -24,7 +25,8 @@ Statistics::SalesReport::SalesReport(QObject *parent) : QObject(parent)
 
 bool Statistics::SalesReport::add(const Core::Person& person) {
     if(!current_persons.contains(person)) {
-        current_persons.insert(person);
+        //current_persons.insert(person);
+        current_persons.append(person);
         return true;
     }
     else
@@ -32,7 +34,11 @@ bool Statistics::SalesReport::add(const Core::Person& person) {
 }
 
 Core::Person& Statistics::SalesReport::get_person(Core::Person& person) {
-    return const_cast<Core::Person&>(*current_persons.find(person));
+    auto result = std::find(current_persons.begin(), current_persons.end(), person);
+    if (result != current_persons.end())
+        return const_cast<Core::Person&>(*result);
+    else
+        return *result;
 }
 
 QString Statistics::SalesReport::flush_sales_report(QString date, QString start_time, QString end_time) {
@@ -126,10 +132,10 @@ QString Statistics::SalesReport::flush_transition_sales_report(QString date, QSt
     auto hour = QDateTime::fromString(start_time, "yyyy-MM-dd hh:mm:ss").toString("hh");
     date = date + "_" + hour;
     auto xml_file_path = default_path + QStringLiteral("report_") + date + ".xml";
-    QSet<Core::Person> temp_cp_to_xml;
+    QVector<Core::Person> temp_cp_to_xml;
     for(auto& person: current_persons) {
         if(QDateTime::fromString(person.time, "yyyy-MM-dd hh:mm:ss").time().hour() == hour.toInt())
-            temp_cp_to_xml.insert(person);
+            temp_cp_to_xml.append(person);
     }
     return flush_report(xml_file_path, date, start_time, end_time, temp_cp_to_xml);
 }
@@ -160,7 +166,7 @@ void Statistics::SalesReport::reestablish(QString file) {
                 person.discount = attrs.value("discount").toInt();
                 person.time = attrs.value("time").toString();
 
-                current_persons.insert(person);
+                current_persons.append(person);
             }
         }
     }
@@ -181,7 +187,7 @@ bool Statistics::SalesReport::contains(const Core::Person& person) {
     return current_persons.contains(person);
 }
 
-QString Statistics::SalesReport::flush_report(QString xml_file_path, QString date, QString start_time, QString end_time, QSet<Core::Person>& person_set) {
+QString Statistics::SalesReport::flush_report(QString xml_file_path, QString date, QString start_time, QString end_time, QVector<Core::Person>& person_set) {
     QFile xml_file(xml_file_path);
 
     qInfo() << Q_FUNC_INFO << "Flush statistic into" << xml_file.fileName() << this;

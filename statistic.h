@@ -2,8 +2,8 @@
 #define STATISTIC_H
 
 #include <QObject>
+#include <QVector>
 #include <QDir>
-#include <QSet>
 
 #include "person.h"
 
@@ -33,10 +33,16 @@ namespace Statistics {
         quint16 m_complex;
         quint16 m_complex_old;
 
-        QSet<Core::Person> current_persons; // За весь день
+        // Need pass through numbering (Store and Restore)
+//        quint64 m_pass_through_numbering = 0; // throught days
+//        quint64 m_pass_through_numbering_day = 0; // throught day
+//        quint64 m_pass_through_numbering_hour = 0; // throught hour
+
+
+        QVector<Core::Person> current_persons; // За весь день
 
         QString default_path = QDir::currentPath() + QStringLiteral("/statistic/");
-        QString flush_report(QString, QString, QString, QString, QSet<Core::Person>&);
+        QString flush_report(QString, QString, QString, QString, QVector<Core::Person>&);
     };
 
     class FtpStatistic : public QObject{

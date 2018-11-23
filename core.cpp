@@ -4,6 +4,7 @@
 #include <QQuickStyle>
 #include <QPainter>
 #include <QThread>
+#include <QVector>
 #include <QDebug>
 #include <QDate>
 
@@ -14,6 +15,7 @@ Core::Core::Core(QObject *parent) : QObject(parent)
 
     qRegisterMetaType<IronLogic::Card>();
     qRegisterMetaType<QSet<Person>>();
+    qRegisterMetaType<QVector<Person>>();
     qRegisterMetaType<Enums::FirstRes>();
     qRegisterMetaType<Enums::SecondRes>();
 
