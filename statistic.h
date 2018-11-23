@@ -30,8 +30,8 @@ namespace Statistics {
         void clear();
 
     private:
-        quint16 m_complex = 150;
-        quint16 m_complex_old = 150;
+        quint16 m_complex;
+        quint16 m_complex_old;
 
         QSet<Core::Person> current_persons; // За весь день
 
