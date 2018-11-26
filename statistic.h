@@ -14,7 +14,7 @@ namespace Statistics {
         Q_OBJECT
     public:
         explicit SalesReport(QObject* parent = nullptr);
-        bool add(const Core::Person&); // Поел))
+        Core::Person& add(const Core::Person&); // Поел))
 
         QString flush_sales_report(QString, QString, QString); // Отчет (Файл, начало времени, конец времени)
         QString flush_abort(QString, QString, QString); // Сброс
@@ -33,16 +33,16 @@ namespace Statistics {
         quint16 m_complex;
         quint16 m_complex_old;
 
-        // Need pass through numbering (Store and Restore)
 //        quint64 m_pass_through_numbering = 0; // throught days
 //        quint64 m_pass_through_numbering_day = 0; // throught day
 //        quint64 m_pass_through_numbering_hour = 0; // throught hour
-
+//        quint64 m_pass_through_numvering_total = 0;
+        quint64 m_pass_through_numbering_total_day = 0;
 
         QVector<Core::Person> current_persons; // За весь день
 
         QString default_path = QDir::currentPath() + QStringLiteral("/statistic/");
-        QString flush_report(QString, QString, QString, QString, QVector<Core::Person>&);
+        QString flush_report(QString, QString, QString, QString, quint64&, QVector<Core::Person>&);
     };
 
     class FtpStatistic : public QObject{

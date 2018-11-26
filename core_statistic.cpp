@@ -46,15 +46,17 @@ void Core::Core_Statistic::receiveCurrentPerson(Core::Enums::FirstRes status, Co
     switch(status) {
     case Core::Enums::FirstRes::FOUND:
         {
-            if(!m_sales_report.add(person)) {
-                qInfo() << Q_FUNC_INFO << QObject::tr("person '%1' already noted").arg(person.full_name) << this;
-                emit showPersonInfo(Core::Enums::SecondRes::FORBIDDEN, person);
-            } else {
-                auto& temp_per = m_sales_report.get_person(person);
-                temp_per.time = QDateTime::currentDateTime().toString(datetime_format);
-                qInfo() << Q_FUNC_INFO << QObject::tr("person '%1' noted").arg(person.full_name) << this;
-                emit showPersonInfo(Core::Enums::SecondRes::ALLOWED, person);
-            }
+            auto& temp_per = m_sales_report.add(person);
+            temp_per.time = QDateTime::currentDateTime().toString(datetime_format);
+            qInfo() << Q_FUNC_INFO << QObject::tr("person '%1' noted").arg(person.full_name) << this;
+            emit showPersonInfo(Core::Enums::SecondRes::ALLOWED, person);
+
+//            if(!m_sales_report.add(person)) {
+//                qInfo() << Q_FUNC_INFO << QObject::tr("person '%1' already noted").arg(person.full_name) << this;
+//                emit showPersonInfo(Core::Enums::SecondRes::FORBIDDEN, person);
+//            } else {
+
+            //}
             break;
         }
     case Core::Enums::FirstRes::NOT_FOUND:

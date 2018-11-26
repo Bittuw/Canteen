@@ -21,6 +21,8 @@ namespace Core {
             NOT_FOUND = 3
         };
 
+//#pragma deprecated(SecondRes::FORBIDDEN)
+
         Q_ENUM(FirstRes)
         Q_ENUM(SecondRes)
         Q_DISABLE_COPY(Enums)

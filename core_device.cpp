@@ -19,8 +19,8 @@ void Core::Core_Device::moveToThread(QThread* thread) {
     QObject::connect(thread, &QThread::started, this, &Core_Device::start);
     QObject::connect(thread, &QThread::finished, this, &Core_Device::stop);
     QObject::connect(&m_block_device_timer, &Utils::MidnightTimer::TimeOut, [this](){
-        m_block_device_timer.stop();
         m_block_device.unblock();
+        m_block_device_timer.stop();
     });
 
     m_reader.moveToThread(thread);
@@ -39,7 +39,7 @@ void Core::Core_Device::setPersonList(QSet<Core::Person> allowed_list) {
 
 void Core::Core_Device::receiveCard(IronLogic::Card card) {
 
-    {
+    { // Protect from multi read (Test)
         m_block_device.reblock();
         m_block_device_timer.start(3);
     }

@@ -23,14 +23,13 @@ Statistics::SalesReport::SalesReport(QObject *parent) : QObject(parent)
 }
 
 
-bool Statistics::SalesReport::add(const Core::Person& person) {
+Core::Person& Statistics::SalesReport::add(const Core::Person& person) {
     if(!current_persons.contains(person)) {
-        //current_persons.insert(person);
         current_persons.append(person);
-        return true;
+        return const_cast<Core::Person&>(current_persons.back());
     }
     else
-        return false;
+        return const_cast<Core::Person&>(*current_persons.end());
 }
 
 Core::Person& Statistics::SalesReport::get_person(Core::Person& person) {
@@ -43,7 +42,8 @@ Core::Person& Statistics::SalesReport::get_person(Core::Person& person) {
 
 QString Statistics::SalesReport::flush_sales_report(QString date, QString start_time, QString end_time) {
     auto xml_file_path = default_path + QStringLiteral("report_full_") + date + ".xml";
-    return flush_report(xml_file_path, date, start_time, end_time, current_persons);
+    auto temp_start = m_pass_through_numbering_total_day;
+    return flush_report(xml_file_path, date, start_time, end_time, temp_start, current_persons);
 }
 
 QString Statistics::SalesReport::flush_abort(QString date, QString start_time, QString end_time) {
@@ -62,11 +62,11 @@ QString Statistics::SalesReport::flush_abort(QString date, QString start_time, Q
     stream.writeStartDocument();
     stream.writeStartElement("wrapper");
 
-        auto id_bill = 0;
+        //auto id_bill = 0;
 
         for(auto& person : current_persons) {
 
-            id_bill++;
+            //id_bill++;
 
             stream.writeEmptyElement("item");
             QXmlStreamAttributes attrs;
@@ -137,7 +137,7 @@ QString Statistics::SalesReport::flush_transition_sales_report(QString date, QSt
         if(QDateTime::fromString(person.time, "yyyy-MM-dd hh:mm:ss").time().hour() == hour.toInt())
             temp_cp_to_xml.append(person);
     }
-    return flush_report(xml_file_path, date, start_time, end_time, temp_cp_to_xml);
+    return flush_report(xml_file_path, date, start_time, end_time, m_pass_through_numbering_total_day, temp_cp_to_xml);
 }
 
 void Statistics::SalesReport::reestablish(QString file) {
@@ -179,6 +179,7 @@ void Statistics::SalesReport::set_complex(quint16 complex) {
 void Statistics::SalesReport::clear() {
     current_persons.clear();
     m_complex_old = m_complex;
+    m_pass_through_numbering_total_day = 0;
     QSettings ftp_settings(QDir::currentPath() + "/ftp.ini", QSettings::IniFormat);
     ftp_settings.setValue("FTP/cost", m_complex_old);
 }
@@ -187,7 +188,14 @@ bool Statistics::SalesReport::contains(const Core::Person& person) {
     return current_persons.contains(person);
 }
 
-QString Statistics::SalesReport::flush_report(QString xml_file_path, QString date, QString start_time, QString end_time, QVector<Core::Person>& person_set) {
+QString Statistics::SalesReport::flush_report(
+        QString xml_file_path,
+        QString date,
+        QString start_time,
+        QString end_time,
+        quint64& pass_through_numbering,
+        QVector<Core::Person>& person_set)
+{
     QFile xml_file(xml_file_path);
 
     qInfo() << Q_FUNC_INFO << "Flush statistic into" << xml_file.fileName() << this;
@@ -222,8 +230,6 @@ QString Statistics::SalesReport::flush_report(QString xml_file_path, QString dat
         stream.writeEndElement();
     }
 
-    auto id_bill = 0;
-
     /// batch bill
     {
         stream.writeStartElement("batch");
@@ -233,12 +239,11 @@ QString Statistics::SalesReport::flush_report(QString xml_file_path, QString dat
 
 
         for(auto& person : person_set) {
-            id_bill++;
 
             stream.writeEmptyElement("item");
             QXmlStreamAttributes attrs;
 
-            attrs.append(QStringLiteral("id"), QString::number(id_bill));
+            attrs.append(QStringLiteral("id"), QString::number(++pass_through_numbering));
             attrs.append(QStringLiteral("amount"), QString::number(m_complex_old - (m_complex_old/100) * person.discount ));
             attrs.append("tab_number", QString::number(person.tab_number));
             attrs.append("bill_datetime", person.time);
@@ -253,23 +258,22 @@ QString Statistics::SalesReport::flush_report(QString xml_file_path, QString dat
         stream.writeEndElement();
     }
 
+    auto through_numbering_temp = m_pass_through_numbering_total_day;
+
     /// batch line
     {
         stream.writeStartElement("batch");
         stream.writeAttribute(QStringLiteral("command"), QStringLiteral("insert"));
         stream.writeAttribute(QStringLiteral("entity"), QStringLiteral("line"));
 
-        auto id_line = 0;
 
         for(auto& person : person_set) {
-            id_bill++;
-            id_line++;
 
             stream.writeEmptyElement("item");
             QXmlStreamAttributes attrs;
 
-            attrs.append(QStringLiteral("id"), QString::number(id_bill));
-            attrs.append(QStringLiteral("bill_id"), QString::number(id_line));
+            attrs.append(QStringLiteral("id"), QString::number(++pass_through_numbering));
+            attrs.append(QStringLiteral("bill_id"), QString::number(pass_through_numbering - through_numbering_temp));
             attrs.append(QStringLiteral("dish_id"), QString::number(1));
             attrs.append(QStringLiteral("name"), "Комплексный обед");
             attrs.append(QStringLiteral("quantity"), QString::number(1));
