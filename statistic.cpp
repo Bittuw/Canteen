@@ -18,7 +18,7 @@ Statistics::SalesReport::SalesReport(QObject *parent) : QObject(parent)
         QDir::current().mkdir("statistic");
     QSettings ftp_settings(QDir::currentPath() + "/ftp.ini", QSettings::IniFormat);
 //    m_pass_through_numbering = ftp_settings.value("FTP/ptn").toInt();
-    m_complex_old = ftp_settings.value("FTP/cost").toInt();
+    m_complex_old = static_cast<quint16>(ftp_settings.value("FTP/cost").toInt());
     m_complex = m_complex_old;
 }
 

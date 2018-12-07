@@ -30,9 +30,8 @@ namespace Core {
 
     private:
         Utils::MidnightTimer m_block_device_timer;
-        QSignalBlocker m_block_device;
-
         IronLogic::Z2USB m_reader;
+        QSignalBlocker m_block_device;
 
         Core::Person m_last_person;
         IronLogic::Card m_raw_person;

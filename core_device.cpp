@@ -9,7 +9,6 @@ Core::Core_Device::Core_Device(QObject *parent) :
     m_block_device(m_reader)
 {
     qDebug() << Q_FUNC_INFO << "create 'Core_Device'" << this;
-
     QObject::connect(&m_reader, &IronLogic::Z2USB::readNewKey, this, &Core_Device::receiveCard);
 }
 
@@ -23,6 +22,7 @@ void Core::Core_Device::moveToThread(QThread* thread) {
         m_block_device_timer.stop();
     });
 
+    m_block_device_timer.moveToThread(thread);
     m_reader.moveToThread(thread);
     QObject::moveToThread(thread);
 }
